@@ -3,25 +3,24 @@ export default async function handler(request, response) {
     return response.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { prompt, image } = request.body;
+  const { prompt } = request.body;
 
   if (!prompt) {
-    return response.status(400).json({ error: 'Prompt is required.' });
+    return response.status(400).json({ error: 'Prompt is required' });
   }
 
   const apiKey = process.env.GEMINI_API_KEY;
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
-  // Detect whether prompt is Klar Hub-related
+  // Detect whether the prompt is Klar Hub-related
   const isKlarHubRelated = /klar hub|fusion|arsenal|pricing|billing|scripts|access|features/i.test(prompt);
 
-  const klarHubPrompt = `
-You are a friendly and helpful support and billing assistant for Klar Hub. Your purpose is to answer user questions about the scripts.
+  const klarHubPrompt = `You are a friendly and helpful support and billing assistant for Klar Hub. Your purpose is to answer user questions about the scripts.
 
 **Formatting Rules:**
 - Your answers must be concise and to the point.
 - When listing multiple items (like features or prices), YOU MUST use bullet points.
-- Use **bold text** for key terms like feature names or prices to make them stand out.
+- Use bold text for key terms like feature names or prices to make them stand out.
 
 **Product Information:**
 - Product Name: Klar Hub
@@ -41,63 +40,37 @@ You are a friendly and helpful support and billing assistant for Klar Hub. Your 
 - **Lifetime Access:** $15.00
 - **Extreme Alt Gen:** $1.00
 
-When asked about prices, provide the relevant price clearly. Do not make up features. If you don't know an answer, politely say you don't have that information.
-`;
+When asked about prices, provide the relevant price clearly. Do not make up features. If you don't know an answer, politely say you don't have that information.`;
 
-  const generalPrompt = `
-You are a helpful and friendly AI assistant. Answer clearly and accurately. Use markdown formatting when it improves readability (e.g., **bold** for emphasis, bullet points for lists, etc.).
-`;
+  const generalPrompt = `You are a helpful and friendly AI assistant. Answer user questions clearly and accurately. Use markdown formatting when it helps (like **bold** for emphasis, or bullet points for lists).`;
 
   const systemPrompt = isKlarHubRelated ? klarHubPrompt : generalPrompt;
-
-  // Build prompt parts
-  const parts = [];
-
-  if (image) {
-    parts.push({
-      inlineData: {
-        mimeType: 'image/jpeg', // or 'image/png' – assume JPEG unless frontend changes it
-        data: image,
-      },
-    });
-  }
-
-  parts.push({ text: prompt });
 
   try {
     const geminiResponse = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: systemPrompt }],
-        },
-        contents: [
-          {
-            role: 'user',
-            parts,
-          },
-        ],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents: [{ parts: [{ text: prompt }] }],
       }),
     });
 
     if (!geminiResponse.ok) {
-      const errText = await geminiResponse.text();
-      console.error('Gemini API Error:', errText);
+      console.error('Gemini API Error:', await geminiResponse.text());
       return response.status(500).json({ error: 'Failed to fetch response from AI.' });
     }
 
     const result = await geminiResponse.json();
-
-    const text = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+    const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
 
     if (text) {
       return response.status(200).json({ text });
     } else {
       return response.status(500).json({ error: 'No response from AI.' });
     }
-  } catch (err) {
-    console.error('Gemini Proxy Error:', err);
-    return response.status(500).json({ error: 'An internal server error occurred.' });
+  } catch (error) {
+    console.error('Proxy Error:', error);
+    return response.status(500).json({ error: 'An internal error occurred.' });
   }
 }
