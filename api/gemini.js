@@ -13,9 +13,9 @@ export default async function handler(request, response) {
   const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
   // Detect whether the prompt is Klar Hub-related
-  const isKlarHubRelated = /klar hub|fusion|arsenal|pricing|billing|scripts|access|features/i.test(prompt);
+  const isKlarHubRelated = /lytesupplies hub|fusion|arsenal|pricing|billing|scripts|access|features/i.test(prompt);
 
-  const klarHubPrompt = `You are a friendly and helpful support and billing assistant for Klar Hub. Your purpose is to answer user questions about the scripts. Keep answers Gen Z too. Using slang if they do too.
+  const klarHubPrompt = `You are a friendly and helpful support and billing assistant for LyteSupplies. Your purpose is to answer user questions about the scripts. Keep answers Gen Z too. Using slang if they do too.
 
 **Formatting Rules:**
 - Your answers must be concise and to the point.
