@@ -75,49 +75,88 @@
 
 const { useState, useEffect, useRef, useCallback } = React;
 
+
 const useInteractiveCard = () => {
     useEffect(() => {
-        const cards = document.querySelectorAll('.interactive-card');
+        // Keep a Set of cards and a map to cached rects
+        const cards = Array.from(document.querySelectorAll('.interactive-card'));
+        if (cards.length === 0) return;
+        const rectCache = new Map();
 
-        const handleMouseMove = (e) => {
-            const card = e.currentTarget;
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            const rotateY = (x - rect.width / 2) / 6;
-            const rotateX = (y - rect.height / 2) / -6;
-
-            const isFeatured = card.classList.contains('featured-card-js');
-            const hoverScale = isFeatured ? 1.15 : 1.05;
-
-            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${hoverScale})`;
-            
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-        };
-
-        const handleMouseLeave = (e) => {
-            const card = e.currentTarget;
-            const isFeatured = card.classList.contains('featured-card-js');
-            const baseScale = isFeatured ? 1.1 : 1;
-            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
-        };
-
+        // Initialize base transitions and will-change for GPU
         cards.forEach(card => {
             card.style.transition = 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            card.addEventListener('mousemove', handleMouseMove);
-            card.addEventListener('mouseleave', handleMouseLeave);
+            card.style.willChange = 'transform';
         });
 
+        let rafId = null;
+        let lastEvent = null;
+        // delegated mousemove handler - set lastEvent and schedule rAF
+        const delegatedMouseMove = (e) => {
+            lastEvent = e;
+            if (!rafId) {
+                rafId = requestAnimationFrame(() => {
+                    rafId = null;
+                    if (!lastEvent) return;
+                    const targetCard = lastEvent.target.closest && lastEvent.target.closest('.interactive-card');
+                    // Reset transform for cards not hovered
+                    cards.forEach(card => {
+                        if (card === targetCard) return;
+                        const isFeatured = card.classList.contains('featured-card-js');
+                        const baseScale = isFeatured ? 1.1 : 1;
+                        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
+                    });
+                    if (!targetCard) {
+                        lastEvent = null;
+                        return;
+                    }
+                    // Cache rect to avoid multiple layout reads per frame
+                    let rect = rectCache.get(targetCard);
+                    if (!rect) {
+                        rect = targetCard.getBoundingClientRect();
+                        rectCache.set(targetCard, rect);
+                        // expire cache after a short while to handle resizes/layout changes
+                        setTimeout(() => rectCache.delete(targetCard), 300);
+                    }
+                    const x = lastEvent.clientX - rect.left;
+                    const y = lastEvent.clientY - rect.top;
+                    const rotateY = (x - rect.width / 2) / 6;
+                    const rotateX = (y - rect.height / 2) / -6;
+                    const isFeatured = targetCard.classList.contains('featured-card-js');
+                    const hoverScale = isFeatured ? 1.15 : 1.05;
+                    targetCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${hoverScale})`;
+                    targetCard.style.setProperty('--mouse-x', `${x}px`);
+                    targetCard.style.setProperty('--mouse-y', `${y}px`);
+                    lastEvent = null;
+                });
+            }
+        };
+
+        const delegatedMouseLeave = (e) => {
+            const target = e.target.closest && e.target.closest('.interactive-card');
+            if (!target) return;
+            const isFeatured = target.classList.contains('featured-card-js');
+            const baseScale = isFeatured ? 1.1 : 1;
+            target.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
+        };
+
+        // Listen on document for delegation
+        document.addEventListener('mousemove', delegatedMouseMove, { passive: true });
+        document.addEventListener('mouseleave', delegatedMouseLeave, true);
+
+        // Recompute rects on resize
+        const handleResize = () => rectCache.clear();
+        window.addEventListener('resize', handleResize, { passive: true });
+
         return () => {
-            cards.forEach(card => {
-                card.removeEventListener('mousemove', handleMouseMove);
-                card.removeEventListener('mouseleave', handleMouseLeave);
-            });
+            document.removeEventListener('mousemove', delegatedMouseMove, { passive: true });
+            document.removeEventListener('mouseleave', delegatedMouseLeave, true);
+            window.removeEventListener('resize', handleResize, { passive: true });
+            if (rafId) cancelAnimationFrame(rafId);
         };
     }, []);
 };
+
 
 
 const useFadeInSection = () => {
@@ -174,23 +213,35 @@ const useAnimatedCounter = (target, duration = 2000) => {
 };
 
 
+
 const useActiveNav = (headerHeight) => {
     const [activeSection, setActiveSection] = useState('home');
     useEffect(() => {
         const sections = Array.from(document.querySelectorAll('main section[id]'));
+        if (sections.length === 0) return;
+        let ticking = false;
         const handleScroll = () => {
-            const scrollPosition = window.scrollY + window.innerHeight / 3;
-            const currentSection = sections
-                .map(section => ({ id: section.id, offsetTop: section.offsetTop }))
-                .filter(section => section.offsetTop <= scrollPosition)
-                .pop();
-            setActiveSection(currentSection ? currentSection.id : 'home');
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const scrollPosition = window.scrollY + window.innerHeight / 3;
+                let current = null;
+                for (let i = 0; i < sections.length; i++) {
+                    const s = sections[i];
+                    if (s.offsetTop <= scrollPosition) current = s.id;
+                }
+                setActiveSection(current || 'home');
+                ticking = false;
+            });
         };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        // run once to init
+        handleScroll();
+        return () => window.removeEventListener('scroll', handleScroll, { passive: true });
     }, [headerHeight]);
     return activeSection;
 };
+
 
 const Logo = ({ onScrollTo }) => (
     <svg 
@@ -247,6 +298,7 @@ const DiscordCounter = () => {
     );
 };
 
+
 const AuroraBackground = () => {
     const [spots] = useState(() =>
         Array.from({ length: 15 }).map(() => ({
@@ -259,18 +311,28 @@ const AuroraBackground = () => {
     const spotRefs = useRef(spots.map(() => React.createRef()));
 
     useEffect(() => {
-        const handleScroll = () => {
-            const scrollY = window.scrollY;
-            spotRefs.current.forEach((ref, i) => {
-                if (ref.current) {
-                    ref.current.style.transform = `translateY(${scrollY * spots[i].parallaxFactor}px)`;
-                }
+        if (!spotRefs.current || spotRefs.current.length === 0) return;
+        let ticking = false;
+        const onScroll = () => {
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(() => {
+                const scrollY = window.scrollY;
+                spotRefs.current.forEach((ref, i) => {
+                    if (ref.current) {
+                        // only use translate3d for GPU-acceleration, don't touch top/left
+                        ref.current.style.transform = `translate3d(0, ${scrollY * spots[i].parallaxFactor}px, 0)`;
+                    }
+                });
+                ticking = false;
             });
         };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener('scroll', onScroll, { passive: true });
+        // initial tick
+        onScroll();
+        return () => window.removeEventListener('scroll', onScroll, { passive: true });
     }, [spots]);
-
+    
     return (
         <div className="aurora-background">
             {spots.map((spot, i) => (
@@ -278,12 +340,13 @@ const AuroraBackground = () => {
                     key={i}
                     ref={spotRefs.current[i]}
                     className="aurora-spot"
-                    style={{ top: spot.top, left: spot.left, width: spot.size, height: spot.size }}
+                    style={{ top: spot.top, left: spot.left, width: spot.size, height: spot.size, willChange: 'transform' }}
                 />
             ))}
         </div>
     );
 };
+
 
 const Modal = ({ children, onClose }) => {
     const [isAnimating, setIsAnimating] = useState(false);
@@ -1610,3 +1673,4 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
+
