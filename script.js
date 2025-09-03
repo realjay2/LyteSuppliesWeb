@@ -1404,9 +1404,9 @@ const App = () => {
     };
 
     const demoVideos = [
-        "https://www.youtube.com/embed/d2hR2gRhME0?autoplay=1",
-        "https://www.youtube.com/embed/97osD4zLYpA?autoplay=1",
-        "https://www.youtube.com/embed/03Y0NuUEOV8?autoplay=1"
+        "https://www.youtube.com/embed/2XR531-CRBQ?autoplay=1",
+        "https://www.youtube.com/embed/pKa82ZwsY0M?autoplay=1",
+        "https://www.youtube.com/embed/97osD4zLYpA?autoplay=1"
     ];
 
     const pricingTiers = [
