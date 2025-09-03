@@ -15,7 +15,7 @@ export default async function handler(request, response) {
   // Detect whether the prompt is Klar Hub-related
   const isKlarHubRelated = /klar hub|fusion|arsenal|pricing|billing|scripts|access|features/i.test(prompt);
 
-  const klarHubPrompt = `You are a friendly and helpful support and billing assistant for Klar Hub. Your purpose is to answer user questions about the scripts.
+  const klarHubPrompt = `You are a friendly and helpful support and billing assistant for Klar Hub. Your purpose is to answer user questions about the scripts. Keep answers Gen Z too. Using slang if they do too.
 
 **Formatting Rules:**
 - Your answers must be concise and to the point.
