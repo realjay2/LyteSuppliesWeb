@@ -1106,7 +1106,7 @@ const App = () => {
             },
             light: {
                 '--background-dark': '#F9FAFB',
-                '--background-light': '#FFFFFF',
+                '--background-light': '#969696',
                 '--text-primary': '#111827',
                 '--text-secondary': '#374151',
                 '--border-color': '#F68D31',   
