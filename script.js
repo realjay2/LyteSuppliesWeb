@@ -246,7 +246,7 @@ const useActiveNav = (headerHeight) => {
 const Logo = ({ onScrollTo }) => (
     <img 
         onClick={() => onScrollTo('home')}
-        src="https://media.discordapp.net/attachments/1375353709273550898/1411794279545700372/IMG_0598.png?ex=68b89662&is=68b744e2&hm=be4576440ef41719e11287808651be227442d1655d93c6f745fee1ee5c56ab70&=" 
+        src="https://media.discordapp.net/attachments/1379463876101537873/1415118001149313145/lyte.discordapp.png?ex=68c20ad7&is=68c0b957&hm=a171147502663386dbca9fdba0a3a01111a266223919c916aa5a4908e603cc32&=" 
         alt="Logo"
         className="h-8 w-auto cursor-pointer"
     />
