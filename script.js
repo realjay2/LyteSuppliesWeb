@@ -1360,7 +1360,7 @@ const App = () => {
                                         <div className="flex flex-col gap-2 mt-auto">
                                             <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
-                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
+                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#F2811E]/20 hover:bg-[#F2811E]/30 text-[#F2811E] border border-[#F2811E]">
                                                     Purchase (Robux)
                                                 </a>
                                             )}
@@ -1384,7 +1384,7 @@ const App = () => {
                                         <div className="flex flex-col gap-2 mt-auto">
                                             <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
-                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
+                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#F2811E]/20 hover:bg-[#F2811E]/30 text-[#F2811E] border border-[#F2811E]">
                                                     Purchase (Robux)
                                                 </a>
                                             )}
