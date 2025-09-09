@@ -1,162 +1,48 @@
-/*!
- * Performance shims injected by ChatGPT (clean & readable optimization)
- * - rAF throttling for 'scroll', 'resize', 'mousemove' handlers
- * - Passive listeners by default for 'touchstart', 'touchmove', 'wheel', 'mousewheel'
- * - Safe handler mapping so removeEventListener still works
- * These shims aim to reduce jank without changing functionality.
- */
-(function () {
-  if (window.__PERF_SHIMS_APPLIED__) return;
-  window.__PERF_SHIMS_APPLIED__ = true;
-
-  const raf = window.requestAnimationFrame ? window.requestAnimationFrame.bind(window) : (cb) => setTimeout(cb, 16);
-  const PASSIVE_EVENTS = new Set(["touchstart", "touchmove", "wheel", "mousewheel"]);
-  const RAF_EVENTS = new Set(["scroll", "resize", "mousemove"]);
-
-  function rafThrottle(fn) {
-    let ticking = false;
-    let lastArgs, lastThis;
-    return function throttled(/* ...args */) {
-      lastArgs = arguments;
-      lastThis = this;
-      if (!ticking) {
-        ticking = true;
-        raf(function () {
-          ticking = false;
-          fn.apply(lastThis, lastArgs);
-        });
-      }
-    };
-  }
-
-  // Optional export to window for manual usage inside the app if needed
-  Object.defineProperty(window, "rafThrottle", { value: rafThrottle, configurable: true });
-
-  const origAdd = EventTarget.prototype.addEventListener;
-  const origRemove = EventTarget.prototype.removeEventListener;
-  const handlerMap = new WeakMap();
-
-  EventTarget.prototype.addEventListener = function (type, listener, options) {
-    if (!listener) return origAdd.call(this, type, listener, options);
-
-    // Wrap with rAF throttling for janky high-frequency events when the handler is a plain function
-    let wrapped = listener;
-    if (typeof listener === "function" && RAF_EVENTS.has(type)) {
-      wrapped = rafThrottle(listener);
-      handlerMap.set(listener, wrapped);
-    }
-
-    // Default passive option for scroll/touch related events when safe
-    let finalOptions = options;
-    try {
-      if (PASSIVE_EVENTS.has(type)) {
-        if (options == null) {
-          finalOptions = { passive: true };
-        } else if (typeof options === "boolean") {
-          finalOptions = { capture: options, passive: true };
-        } else if (typeof options === "object" && !("passive" in options)) {
-          finalOptions = Object.assign({}, options, { passive: true });
-        }
-      }
-    } catch (_) {
-      // In case of any edge options object, fall back to original
-      finalOptions = options;
-    }
-
-    return origAdd.call(this, type, wrapped, finalOptions);
-  };
-
-  EventTarget.prototype.removeEventListener = function (type, listener, options) {
-    const mapped = handlerMap.get(listener);
-    return origRemove.call(this, type, mapped || listener, options);
-  };
-})();
-
-
 const { useState, useEffect, useRef, useCallback } = React;
-
 
 const useInteractiveCard = () => {
     useEffect(() => {
-        // Keep a Set of cards and a map to cached rects
-        const cards = Array.from(document.querySelectorAll('.interactive-card'));
-        if (cards.length === 0) return;
-        const rectCache = new Map();
+        const cards = document.querySelectorAll('.interactive-card');
 
-        // Initialize base transitions and will-change for GPU
+        const handleMouseMove = (e) => {
+            const card = e.currentTarget;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const rotateY = (x - rect.width / 2) / 6;
+            const rotateX = (y - rect.height / 2) / -6;
+
+            const isFeatured = card.classList.contains('featured-card-js');
+            const hoverScale = isFeatured ? 1.15 : 1.05;
+
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${hoverScale})`;
+            
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+        };
+
+        const handleMouseLeave = (e) => {
+            const card = e.currentTarget;
+            const isFeatured = card.classList.contains('featured-card-js');
+            const baseScale = isFeatured ? 1.1 : 1;
+            card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
+        };
+
         cards.forEach(card => {
             card.style.transition = 'transform 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-            card.style.willChange = 'transform';
+            card.addEventListener('mousemove', handleMouseMove);
+            card.addEventListener('mouseleave', handleMouseLeave);
         });
 
-        let rafId = null;
-        let lastEvent = null;
-        // delegated mousemove handler - set lastEvent and schedule rAF
-        const delegatedMouseMove = (e) => {
-            lastEvent = e;
-            if (!rafId) {
-                rafId = requestAnimationFrame(() => {
-                    rafId = null;
-                    if (!lastEvent) return;
-                    const targetCard = lastEvent.target.closest && lastEvent.target.closest('.interactive-card');
-                    // Reset transform for cards not hovered
-                    cards.forEach(card => {
-                        if (card === targetCard) return;
-                        const isFeatured = card.classList.contains('featured-card-js');
-                        const baseScale = isFeatured ? 1.1 : 1;
-                        card.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
-                    });
-                    if (!targetCard) {
-                        lastEvent = null;
-                        return;
-                    }
-                    // Cache rect to avoid multiple layout reads per frame
-                    let rect = rectCache.get(targetCard);
-                    if (!rect) {
-                        rect = targetCard.getBoundingClientRect();
-                        rectCache.set(targetCard, rect);
-                        // expire cache after a short while to handle resizes/layout changes
-                        setTimeout(() => rectCache.delete(targetCard), 300);
-                    }
-                    const x = lastEvent.clientX - rect.left;
-                    const y = lastEvent.clientY - rect.top;
-                    const rotateY = (x - rect.width / 2) / 6;
-                    const rotateX = (y - rect.height / 2) / -6;
-                    const isFeatured = targetCard.classList.contains('featured-card-js');
-                    const hoverScale = isFeatured ? 1.15 : 1.05;
-                    targetCard.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${hoverScale})`;
-                    targetCard.style.setProperty('--mouse-x', `${x}px`);
-                    targetCard.style.setProperty('--mouse-y', `${y}px`);
-                    lastEvent = null;
-                });
-            }
-        };
-
-        const delegatedMouseLeave = (e) => {
-            const target = e.target.closest && e.target.closest('.interactive-card');
-            if (!target) return;
-            const isFeatured = target.classList.contains('featured-card-js');
-            const baseScale = isFeatured ? 1.1 : 1;
-            target.style.transform = `perspective(1000px) rotateX(0) rotateY(0) scale(${baseScale})`;
-        };
-
-        // Listen on document for delegation
-        document.addEventListener('mousemove', delegatedMouseMove, { passive: true });
-        document.addEventListener('mouseleave', delegatedMouseLeave, true);
-
-        // Recompute rects on resize
-        const handleResize = () => rectCache.clear();
-        window.addEventListener('resize', handleResize, { passive: true });
-
         return () => {
-            document.removeEventListener('mousemove', delegatedMouseMove, { passive: true });
-            document.removeEventListener('mouseleave', delegatedMouseLeave, true);
-            window.removeEventListener('resize', handleResize, { passive: true });
-            if (rafId) cancelAnimationFrame(rafId);
+            cards.forEach(card => {
+                card.removeEventListener('mousemove', handleMouseMove);
+                card.removeEventListener('mouseleave', handleMouseLeave);
+            });
         };
     }, []);
 };
-
 
 
 const useFadeInSection = () => {
@@ -213,45 +99,35 @@ const useAnimatedCounter = (target, duration = 2000) => {
 };
 
 
-
 const useActiveNav = (headerHeight) => {
     const [activeSection, setActiveSection] = useState('home');
     useEffect(() => {
         const sections = Array.from(document.querySelectorAll('main section[id]'));
-        if (sections.length === 0) return;
-        let ticking = false;
         const handleScroll = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-                const scrollPosition = window.scrollY + window.innerHeight / 3;
-                let current = null;
-                for (let i = 0; i < sections.length; i++) {
-                    const s = sections[i];
-                    if (s.offsetTop <= scrollPosition) current = s.id;
-                }
-                setActiveSection(current || 'home');
-                ticking = false;
-            });
+            const scrollPosition = window.scrollY + window.innerHeight / 3;
+            const currentSection = sections
+                .map(section => ({ id: section.id, offsetTop: section.offsetTop }))
+                .filter(section => section.offsetTop <= scrollPosition)
+                .pop();
+            setActiveSection(currentSection ? currentSection.id : 'home');
         };
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        // run once to init
-        handleScroll();
-        return () => window.removeEventListener('scroll', handleScroll, { passive: true });
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
     }, [headerHeight]);
     return activeSection;
 };
 
-
 const Logo = ({ onScrollTo }) => (
-    <img 
+    <svg 
         onClick={() => onScrollTo('home')}
-        src="https://media.discordapp.net/attachments/1379463876101537873/1415118001149313145/lyte.discordapp.png?ex=68c20ad7&is=68c0b957&hm=a171147502663386dbca9fdba0a3a01111a266223919c916aa5a4908e603cc32&=" 
-        alt="Logo"
-        className="h-8 w-auto cursor-pointer"
-    />
+        className="h-8 w-auto cursor-pointer" 
+        viewBox="0 0 100 100" 
+        fill="none" 
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path d="M12 10 L12 90 L28 90 L28 60 L60 90 L75 90 L40 50 L75 10 L60 10 L28 40 L28 10 L12 10 Z" className="fill-theme-primary stroke-theme-primary" strokeWidth="4"/>
+    </svg>
 );
-
 
 const DiscordCounter = () => {
     const [onlineCount, setOnlineCount] = useState(null);
@@ -291,11 +167,10 @@ const DiscordCounter = () => {
 
     return (
         <div className="mt-4 text-lg text-theme-secondary">
-            Join <span className="font-bold text-CoreAPI">{onlineCount === null ? '...' : onlineCount}</span> members online now!
+            Join <span className="font-bold text-klar">{onlineCount === null ? '...' : onlineCount}</span> members online now!
         </div>
     );
 };
-
 
 const AuroraBackground = () => {
     const [spots] = useState(() =>
@@ -309,28 +184,18 @@ const AuroraBackground = () => {
     const spotRefs = useRef(spots.map(() => React.createRef()));
 
     useEffect(() => {
-        if (!spotRefs.current || spotRefs.current.length === 0) return;
-        let ticking = false;
-        const onScroll = () => {
-            if (ticking) return;
-            ticking = true;
-            requestAnimationFrame(() => {
-                const scrollY = window.scrollY;
-                spotRefs.current.forEach((ref, i) => {
-                    if (ref.current) {
-                        // only use translate3d for GPU-acceleration, don't touch top/left
-                        ref.current.style.transform = `translate3d(0, ${scrollY * spots[i].parallaxFactor}px, 0)`;
-                    }
-                });
-                ticking = false;
+        const handleScroll = () => {
+            const scrollY = window.scrollY;
+            spotRefs.current.forEach((ref, i) => {
+                if (ref.current) {
+                    ref.current.style.transform = `translateY(${scrollY * spots[i].parallaxFactor}px)`;
+                }
             });
         };
-        window.addEventListener('scroll', onScroll, { passive: true });
-        // initial tick
-        onScroll();
-        return () => window.removeEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
     }, [spots]);
-    
+
     return (
         <div className="aurora-background">
             {spots.map((spot, i) => (
@@ -338,13 +203,12 @@ const AuroraBackground = () => {
                     key={i}
                     ref={spotRefs.current[i]}
                     className="aurora-spot"
-                    style={{ top: spot.top, left: spot.left, width: spot.size, height: spot.size, willChange: 'transform' }}
+                    style={{ top: spot.top, left: spot.left, width: spot.size, height: spot.size }}
                 />
             ))}
         </div>
     );
 };
-
 
 const Modal = ({ children, onClose }) => {
     const [isAnimating, setIsAnimating] = useState(false);
@@ -425,7 +289,7 @@ const VideoModal = ({ videoUrls, onClose }) => {
                                     <div key={index} className="absolute w-[70%] md:w-[60%] aspect-video" style={style}>
                                         {isActive ? (
                                             <iframe
-                                                className="w-full h-full rounded-lg shadow-2xl border-2 border-CoreAPI"
+                                                className="w-full h-full rounded-lg shadow-2xl border-2 border-klar"
                                                 src={url}
                                                 title={`CoreAPI Demo Video ${index + 1}`}
                                                 frameBorder="0"
@@ -469,7 +333,7 @@ const GameFeaturesModal = ({ game, onClose }) => {
                          <ul className="space-y-3 text-theme-secondary">
                              {game.features.map((feature, index) => (
                                  <li key={index} className="flex items-center gap-3">
-                                     <svg className="w-5 h-5 text-CoreAPI flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
+                                     <svg className="w-5 h-5 text-klar flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd" /></svg>
                                      <span>{feature}</span>
                                  </li>
                              ))}
@@ -482,183 +346,108 @@ const GameFeaturesModal = ({ game, onClose }) => {
 };
 
 const AIHelperModal = ({ onClose }) => {
-  const [input, setInput] = useState('');
-  const [imageFile, setImageFile] = useState(null);
-  const [chatHistory, setChatHistory] = useState([
-    {
-      role: 'ai',
-      text: 'Hello! I am the CoreAPI AI assistant. How can I help you today? Feel free to ask about features, pricing, or anything else.',
-    },
-  ]);
-  const [isLoading, setIsLoading] = useState(false);
-  const chatEndRef = useRef(null);
-
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [chatHistory]);
-
-  const callGeminiAPI = async (prompt, image) => {
-    setIsLoading(true);
-
-    if (window.location.protocol === 'file:') {
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          role: 'ai',
-          text: 'The AI assistant only works on the live website. Please visit the site to use this feature.',
-        },
-      ]);
-      setIsLoading(false);
-      return;
-    }
-
-    const apiUrl = '/api/gemini';
-
-    let base64Image = null;
-
-    if (image) {
-      const buffer = await image.arrayBuffer();
-      base64Image = btoa(String.fromCharCode(...new Uint8Array(buffer)));
-    }
-
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt, image: base64Image }),
-      });
-
-      if (!response.ok) {
-        const errorBody = await response.text();
-        console.error('API proxy error:', errorBody);
-        throw new Error('The AI assistant is experiencing issues.');
-      }
-
-      const result = await response.json();
-      const text = result.text;
-
-      if (text) {
-        setChatHistory((prev) => [...prev, { role: 'ai', text }]);
-      } else {
-        throw new Error('Received an empty response from the AI assistant.');
-      }
-    } catch (err) {
-      console.error('AI Helper Error:', err);
-      setChatHistory((prev) => [
-        ...prev,
-        {
-          role: 'ai',
-          text: 'Sorry, the AI assistant is currently experiencing issues. Please try again later or join our Discord for help.',
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-      setImageFile(null);
-    }
-  };
-
-  const sendMessage = async (prompt) => {
-    if (!prompt.trim() || isLoading) return;
-
-    setChatHistory((prev) => [...prev, { role: 'user', text: prompt }]);
-    await callGeminiAPI(prompt, imageFile);
-    setInput('');
-  };
-
-  const handleFormSubmit = (e) => {
-    e.preventDefault();
-    sendMessage(input);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      setImageFile(file);
-    } else {
-      alert('Only image files are supported.');
-    }
-  };
-
-  const quickQuestions = [
-    'What are the features for FF2?',
-    'How much is lifetime access?',
-    'Is CoreAPI safe to use?',
-  ];
-
-  return (
-    <Modal onClose={onClose}>
-      {(handleClose) => (
-        <div className="bg-theme-modal-card rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col border border-theme">
-          <div className="p-4 border-b border-theme flex justify-between items-center flex-shrink-0">
-            <h3 className="text-lg font-bold text-theme-primary">AI Script Helper</h3>
-            <button onClick={handleClose} className="text-theme-secondary hover:text-theme-primary text-2xl">×</button>
-          </div>
-
-          <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
-            {chatHistory.map((msg, index) => (
-              <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-md p-3 rounded-lg ${msg.role === 'user' ? 'bg-CoreAPI text-white' : 'bg-theme-button-secondary text-theme-button-secondary-text'}`}>
-                  <p dangerouslySetInnerHTML={{
-                    __html: msg.text
-                      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      .replace(/\* (.*?)(?:\n|$)/g, '<li>$1</li>')
-                      .replace(/<li>/g, '<li class="list-disc ml-4">')
-                  }}></p>
+    const [input, setInput] = useState('');
+    const [chatHistory, setChatHistory] = useState([{ role: 'ai', text: 'Hello! I am the CoreAPI AI assistant. How can I help you today? Feel free to ask about features, pricing, or anything else.' }]);
+    const [isLoading, setIsLoading] = useState(false);
+    const chatEndRef = useRef(null);
+    useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatHistory]);
+    const callGeminiAPI = async (prompt) => {
+        setIsLoading(true);
+        if (window.location.protocol === 'file:') {
+            setChatHistory(prev => [...prev, { role: 'ai', text: "The AI assistant only works on the live website (klarhub.store). Please visit the site to use this feature." }]);
+            setIsLoading(false);
+            return;
+        }
+        const apiUrl = '/api/gemini';
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: prompt })
+            });
+            if (!response.ok) {
+                const errorBody = await response.text();
+                console.error("API proxy error:", errorBody);
+                throw new Error("The AI assistant is experiencing issues.");
+            }
+            const result = await response.json();
+            const text = result.text;
+            if (text) {
+                setChatHistory(prev => [...prev, { role: 'ai', text }]);
+            } else {
+                throw new Error("Received an empty response from the AI assistant.");
+            }
+        } catch (err) {
+            console.error("AI Helper Error:", err);
+            setChatHistory(prev => [...prev, { role: 'ai', text: 'Sorry, the AI assistant is currently experiencing issues. Please try again later or join our Discord for help.' }]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    const sendMessage = (prompt) => {
+        if (!prompt.trim() || isLoading) return;
+        setChatHistory(prev => [...prev, { role: 'user', text: prompt }]);
+        callGeminiAPI(prompt);
+        setInput('');
+    };
+    const handleFormSubmit = (e) => {
+        e.preventDefault();
+        sendMessage(input);
+    };
+    const quickQuestions = ["What are the features for FF2?", "How much is lifetime access?", "Is CoreAPI safe to use?"];
+    return (
+        <Modal onClose={onClose}>
+            {(handleClose) => (
+                <div className="bg-theme-modal-card rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col border border-theme">
+                    <div className="p-4 border-b border-theme flex justify-between items-center flex-shrink-0">
+                        <h3 className="text-lg font-bold text-theme-primary">AI Script Helper</h3>
+                        <button onClick={handleClose} className="text-theme-secondary hover:text-theme-primary text-2xl">×</button>
+                    </div>
+                    <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
+                        {chatHistory.map((msg, index) => (
+                            <div key={index} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                                <div className={`max-w-md p-3 rounded-lg ${msg.role === 'user' ? 'bg-klar text-white' : 'bg-theme-button-secondary text-theme-button-secondary-text'}`}>
+                                    <p dangerouslySetInnerHTML={{ __html: msg.text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\* (.*?)(?:\n|$)/g, '<li>$1</li>').replace(/<li>/g, '<li class="list-disc ml-4">') }}></p>
+                                </div>
+                            </div>
+                        ))}
+                        {isLoading && (
+                            <div className="flex justify-start">
+                                <div className="bg-theme-button-secondary text-theme-button-secondary p-3 rounded-lg flex items-center gap-2">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-300"></div>
+                                </div>
+                            </div>
+                        )}
+                        <div ref={chatEndRef} />
+                    </div>
+                     {chatHistory.length === 1 && (
+                         <div className="p-4 border-t border-theme flex-shrink-0">
+                             <p className="text-sm text-theme-secondary mb-2 text-center">Or try one of these:</p>
+                             <div className="flex flex-wrap justify-center gap-2">
+                                 {quickQuestions.map(q => (
+                                     <button key={q} onClick={() => sendMessage(q)} className="bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text text-sm px-3 py-1 rounded-full transition">{q}</button>
+                                 ))}
+                             </div>
+                         </div>
+                    )}
+                    <form onSubmit={handleFormSubmit} className="p-4 border-t border-theme flex gap-2 flex-shrink-0">
+                        <input
+                            type="text"
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Ask a question..."
+                            className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-klar p-3"
+                        />
+                        <button type="submit" className="bg-klar hover:bg-klar-light text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center" disabled={isLoading}>
+                            <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086L2.279 16.76a.75.75 0 00.95.826l1.425-3.562a.75.75 0 000-1.406L3.105 2.289z" /></svg>
+                        </button>
+                    </form>
                 </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-theme-button-secondary text-theme-button-secondary p-3 rounded-lg flex items-center gap-2">
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-150"></div>
-                  <div className="w-2 h-2 bg-gray-400 rounded-full animate-pulse delay-300"></div>
-                </div>
-              </div>
             )}
-            <div ref={chatEndRef} />
-          </div>
-
-          {chatHistory.length === 1 && (
-            <div className="p-4 border-t border-theme flex-shrink-0">
-              <p className="text-sm text-theme-secondary mb-2 text-center">Or try one of these:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {quickQuestions.map(q => (
-                  <button key={q} onClick={() => sendMessage(q)} className="bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text text-sm px-3 py-1 rounded-full transition">{q}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <form onSubmit={handleFormSubmit} className="p-4 border-t border-theme flex gap-2 flex-shrink-0">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask a question..."
-              className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-CoreAPI p-3"
-            />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleFileChange}
-              className="hidden"
-              id="upload-image"
-            />
-            <label
-              htmlFor="upload-image"
-              className="cursor-pointer bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text py-2 px-3 rounded-lg flex items-center"
-            >
-              📷
-            </label>
-            <button type="submit" className="bg-CoreAPI hover:bg-CoreAPI-light text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center" disabled={isLoading}>
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086L2.279 16.76a.75.75 0 00.95.826l1.425-3.562a.75.75 0 000-1.406L3.105 2.289z" /></svg>
-            </button>
-          </form>
-        </div>
-      )}
-    </Modal>
-  );
+        </Modal>
+    );
 };
 
 const TosModal = ({ onClose }) => {
@@ -808,7 +597,7 @@ const PreviewModal = ({ onClose }) => {
         return (
             <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400">{label}</span>
-                <div onClick={() => handleValueChange(id, !checked)} className={`w-9 h-5 rounded-full p-1 flex items-center cursor-pointer transition-colors ${checked ? 'bg-CoreAPI justify-end' : 'bg-black/30 justify-start'}`}>
+                <div onClick={() => handleValueChange(id, !checked)} className={`w-9 h-5 rounded-full p-1 flex items-center cursor-pointer transition-colors ${checked ? 'bg-klar justify-end' : 'bg-black/30 justify-start'}`}>
                     <div className="w-3 h-3 bg-white rounded-full transition-transform"></div>
                 </div>
             </div>
@@ -889,9 +678,9 @@ const PreviewModal = ({ onClose }) => {
                     onTouchStart={handleTouchStart}
                     className="w-full h-2 rounded-full bg-black/30 cursor-pointer relative group"
                 >
-                    <div className="h-full bg-CoreAPI rounded-full" style={{ width: `${percentage}%` }}></div>
+                    <div className="h-full bg-klar rounded-full" style={{ width: `${percentage}%` }}></div>
                     <div
-                        className={`w-4 h-4 bg-white border-2 border-CoreAPI rounded-full absolute top-1/2 -translate-y-1/2 -translate-x-1/2 slider-thumb ${isDragging ? 'dragging' : ''}`}
+                        className={`w-4 h-4 bg-white border-2 border-klar rounded-full absolute top-1/2 -translate-y-1/2 -translate-x-1/2 slider-thumb ${isDragging ? 'dragging' : ''}`}
                         style={{ left: `${percentage}%` }}
                     ></div>
                 </div>
@@ -904,15 +693,15 @@ const PreviewModal = ({ onClose }) => {
         return (
              <div className="flex items-center justify-between">
                 <span className="text-xs text-gray-400">{label}</span>
-                 <select value={selectedValue} onChange={(e) => handleValueChange(id, e.target.value)} className="bg-black/30 text-xs text-gray-300 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-CoreAPI">
+                 <select value={selectedValue} onChange={(e) => handleValueChange(id, e.target.value)} className="bg-black/30 text-xs text-gray-300 border border-gray-600 rounded px-2 py-1 focus:outline-none focus:border-klar">
                     {options.map(o => <option key={o}>{o}</option>)}
                 </select>
             </div>
         );
     };
     
-    const Button = ({ label }) => <button onClick={handleButtonInteraction} className="w-full text-xs bg-black/30 text-gray-300 py-1.5 rounded active:bg-CoreAPI/30 active:scale-95 transition-all">{label}</button>
-    const TextInput = ({ placeholder }) => <input type="text" placeholder={placeholder} className="w-full bg-black/30 text-xs p-2 rounded border border-gray-600 focus:outline-none focus:border-CoreAPI placeholder-gray-500" />
+    const Button = ({ label }) => <button onClick={handleButtonInteraction} className="w-full text-xs bg-black/30 text-gray-300 py-1.5 rounded active:bg-klar/30 active:scale-95 transition-all">{label}</button>
+    const TextInput = ({ placeholder }) => <input type="text" placeholder={placeholder} className="w-full bg-black/30 text-xs p-2 rounded border border-gray-600 focus:outline-none focus:border-klar placeholder-gray-500" />
 
     const renderContent = () => {
         switch (activeTab) {
@@ -1046,17 +835,17 @@ const PreviewModal = ({ onClose }) => {
             {(handleClose) => (
                 <div className="w-[800px] h-[500px] bg-[#0D0D0F] text-white rounded-lg flex overflow-hidden border border-gray-800 shadow-2xl shadow-black/50">
                     <div className="w-48 bg-[#18181C] p-4 flex flex-col">
-                        <h1 className="text-lg font-bold">CoreAPI | <span className="text-CoreAPI">FF2</span></h1>
+                        <h1 className="text-lg font-bold">CoreAPI | <span className="text-klar">FF2</span></h1>
                         <div className="mt-6 flex-grow space-y-1">
                             {tabs.map(tab => (
                                 <button
                                     key={tab.name}
                                     onClick={() => handleTabClick(tab.name)}
-                                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors relative ${activeTab === tab.name ? 'text-white bg-CoreAPI/10' : 'text-gray-400 hover:bg-white/5'}`}
+                                    className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-md transition-colors relative ${activeTab === tab.name ? 'text-white bg-klar/10' : 'text-gray-400 hover:bg-white/5'}`}
                                 >
                                     {tab.icon}
                                     <span>{tab.name}</span>
-                                    {activeTab === tab.name && <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-CoreAPI rounded-r-full"></div>}
+                                    {activeTab === tab.name && <div className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-1 bg-klar rounded-r-full"></div>}
                                 </button>
                             ))}
                         </div>
@@ -1089,7 +878,7 @@ const ComparePlansModal = ({ onClose, allTiers }) => {
         },
         { 
             name: 'Access To All Games',
-            getValue: (tier) => tier.name.includes('CoreAPI') ? '✔️' : 'N/A'
+            getValue: (tier) => tier.name.includes('Klar') ? '✔️' : 'N/A'
         },
         { 
             name: 'Premium Support',
@@ -1113,7 +902,7 @@ const ComparePlansModal = ({ onClose, allTiers }) => {
                                     {allTiers.map(tier => (
                                         <th key={tier.name} className="p-3 text-sm font-semibold text-theme-primary bg-theme-dark text-center whitespace-nowrap">
                                             {tier.name}
-                                            {tier.isFeatured && <span className="block text-xs text-CoreAPI font-normal">(Best Value)</span>}
+                                            {tier.isFeatured && <span className="block text-xs text-klar font-normal">(Best Value)</span>}
                                         </th>
                                     ))}
                                     <th className="p-3 bg-theme-dark rounded-tr-lg"></th>
@@ -1134,7 +923,7 @@ const ComparePlansModal = ({ onClose, allTiers }) => {
                                     <td className="p-3"></td>
                                     {allTiers.map(tier => (
                                         <td key={tier.name} className="p-3 text-center">
-                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-CoreAPI/20 hover:bg-CoreAPI/30 text-CoreAPI border border-CoreAPI text-sm">
+                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-klar/20 hover:bg-klar/30 text-klar border border-klar text-sm">
                                                 Purchase
                                             </a>
                                         </td>
@@ -1168,7 +957,7 @@ const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeS
             </div>
             <nav className="hidden md:flex flex-shrink-0 justify-center items-center gap-6 text-sm font-semibold">
                 {navItems.map(item => (
-                    <button key={item.id} onClick={() => item.id === 'tos' ? onTosClick() : onScrollTo(item.id)} className={`text-theme-secondary hover:text-CoreAPI transition ${activeSection === item.id ? 'nav-active' : ''}`}>
+                    <button key={item.id} onClick={() => item.id === 'tos' ? onTosClick() : onScrollTo(item.id)} className={`text-theme-secondary hover:text-klar transition ${activeSection === item.id ? 'nav-active' : ''}`}>
                         {item.label}
                     </button>
                 ))}
@@ -1181,7 +970,7 @@ const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeS
                         <svg className="w-6 h-6 text-theme-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     )}
                 </button>
-                <a href={discordLink} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-CoreAPI/20 hover:bg-CoreAPI/30 text-CoreAPI border border-CoreAPI">Join Discord</a>
+                <a href={discordLink} target="_blank" rel="noopener noreferrer" className="inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-klar/20 hover:bg-klar/30 text-klar border border-klar">Join Discord</a>
             </div>
             <div className="md:hidden flex-1 flex justify-end">
                 <button onClick={onToggleMobileMenu} className="text-theme-primary z-50">
@@ -1217,9 +1006,9 @@ const MobileMenu = ({ isOpen, onScrollTo, onTosClick, onClose }) => {
                         onScrollTo(item.id);
                     }
                     onClose();
-                }} className="text-theme-secondary hover:text-CoreAPI transition">{item.label}</button>
+                }} className="text-theme-secondary hover:text-klar transition">{item.label}</button>
             ))}
-            <div className="mt-4"><a href={discordLink} target="_blank" rel="noopener noreferrer" className="inline-block py-3 px-8 text-xl rounded-lg font-semibold text-center transition bg-CoreAPI hover:bg-CoreAPI-light text-white">Join Discord</a></div>
+            <div className="mt-4"><a href={discordLink} target="_blank" rel="noopener noreferrer" className="inline-block py-3 px-8 text-xl rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join Discord</a></div>
         </div>
     );
 };
@@ -1236,7 +1025,7 @@ const BackToTopButton = () => {
     }, []);
 
     return (
-        <button id="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 left-8 bg-CoreAPI/80 hover:bg-CoreAPI text-white w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
+        <button id="back-to-top" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className={`fixed bottom-8 left-8 bg-klar/80 hover:bg-klar text-white w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto transition-all ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}>
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/></svg>
         </button>
     );
@@ -1257,7 +1046,7 @@ const AIHelperButton = ({ onClick }) => {
                      <div className="absolute right-4 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-800"></div>
                  </div>
             )}
-            <button id="ai-helper-button" onClick={onClick} className="bg-CoreAPI/80 hover:bg-CoreAPI text-white w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto shadow-lg shadow-CoreAPI">
+            <button id="ai-helper-button" onClick={onClick} className="bg-klar/80 hover:bg-klar text-white w-12 h-12 rounded-full flex items-center justify-center pointer-events-auto shadow-lg shadow-klar">
                 <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 21v-1.5M15.75 3v1.5m0 16.5v-1.5m3.75-12H21M12 21v-1.5" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 3.75v16.5M16.5 4.5l-9 15M16.5 19.5l-9-15" /></svg>
             </button>
         </div>
@@ -1267,15 +1056,15 @@ const AIHelperButton = ({ onClick }) => {
 const Footer = () => (
      <footer className="w-full p-8 text-center text-gray-500 text-sm">
         <p>© 2025 CoreAPI. All rights reserved.</p>
-        <p className="mt-2">made by realjay2</p>
+        <p className="mt-2">made by auaqa</p>
          <div className="flex justify-center gap-6 mt-4">
-             <a href="#" className="text-gray-400 hover:text-CoreAPI transition-colors" aria-label="Discord">
+             <a href="#" className="text-gray-400 hover:text-klar transition-colors" aria-label="Discord">
                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.36981C18.7915 3.74873 17.189 3.28434 15.5298 3.00003C15.5298 3.00003 15.1518 3.42189 14.865 3.76878C13.0476 3.22018 11.1492 3.22018 9.423 3.76878C9.135 3.42189 8.7582 3 8.7582 3C7.09901 3.28434 5.49652 3.74873 3.97017 4.36981C0.324569 9.87328 -0.463321 15.1072 0.871542 20.2078C2.6516 21.6213 4.59436 22.548 6.65283 23C7.26284 22.3486 7.80165 21.631 8.256 20.8522C7.38573 20.4866 6.58162 20.021 5.84279 19.4515C6.11591 19.2633 6.3802 19.0664 6.6346 18.8608C10.0322 20.6453 14.2523 20.6453 17.6487 18.8608C17.9031 19.0664 18.1674 19.2633 18.4405 19.4515C17.7017 20.021 16.9064 20.4866 16.0273 20.8522C16.4817 21.631 17.0205 22.3486 17.6305 23C19.689 22.548 21.6317 21.6213 23.4118 20.2078C24.5828 14.2458 23.5938 8.81315 20.317 4.36981ZM8.02004 16.5392C6.88337 16.5392 6.00004 15.503 6.00004 14.1682C6.00004 12.8334 6.88337 11.7972 8.02004 11.7972C9.15671 11.7972 10.04 12.8334 10.0203 14.1682C10.0203 15.503 9.15671 16.5392 8.02004 16.5392ZM16.2687 16.5392C15.132 16.5392 14.2487 15.503 14.2487 14.1682C14.2487 12.8334 15.132 11.7972 16.2687 11.7972C17.4054 11.7972 18.2887 12.8334 18.2689 14.1682C18.2689 15.503 17.4054 16.5392 16.2687 16.5392Z" /></svg>
              </a>
-             <a href="#" className="text-gray-400 hover:text-CoreAPI transition-colors" aria-label="Telegram">
+             <a href="#" className="text-gray-400 hover:text-klar transition-colors" aria-label="Telegram">
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 24a12 12 0 1 1 12-12 12.013 12.013 0 0 1-12 12Zm5.74-15.652L6.44 12.27c-.88.39-1.01.76-.23 1.1l2.58 1.12 6.09-3.79c.33-.2.62-.09.35.13l-4.93 4.45-1.15 3.39c.83 0 .81-.38 1.12-.66l1.79-1.63 3.4 2.45c.6.35 1.01.16 1.18-.52l2.1-9.84c.21-.83-.3-1.18-1.04-.84Z"/></svg>
              </a>
-             <a href="#" className="text-gray-400 hover:text-CoreAPI transition-colors" aria-label="Youtube">
+             <a href="#" className="text-gray-400 hover:text-klar transition-colors" aria-label="Youtube">
                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814ZM9.545 15.568V8.432L15.818 12l-6.273 3.568Z" /></svg>
              </a>
          </div>
@@ -1294,11 +1083,11 @@ const App = () => {
     const [isPreviewAnimating, setIsPreviewAnimating] = useState(false);
     const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
     const [freeKey, setFreeKey] = useState('');
-    const [theme, setTheme] = useState(() => localStorage.getItem('CoreAPI-theme') || 'dark');
+    const [theme, setTheme] = useState(() => localStorage.getItem('klar-theme') || 'dark');
 
     useEffect(() => {
         const root = document.documentElement;
-        localStorage.setItem('CoreAPI-theme', theme);
+        localStorage.setItem('klar-theme', theme);
         
         const themes = {
             dark: {
@@ -1404,18 +1193,13 @@ const App = () => {
     };
 
     const demoVideos = [
-        "https://www.youtube.com/embed/2XR531-CRBQ?autoplay=1",
-        "https://www.youtube.com/embed/pKa82ZwsY0M?autoplay=1",
-        "https://www.youtube.com/embed/97osD4zLYpA?autoplay=1"
+        "https://www.youtube.com/embed/d2hR2gRhME0?autoplay=1",
+        "https://www.youtube.com/embed/97osD4zLYpA?autoplay=1",
+        "https://www.youtube.com/embed/03Y0NuUEOV8?autoplay=1"
     ];
 
     const pricingTiers = [
-        { name: '1 Week CoreAPI Access', price: '$1.50', url: 'https://klarhub.sellhub.cx/product/1-Week/', specialTag: 'Most Popular'},
-        { name: 'Lifetime CoreAPI', price: '$15.00', url: 'https://klarhub.sellhub.cx/product/New-product/', isFeatured: true },
-        { name: 'Extreme Alt Gen', price: '$1.00', url: 'https://klarhub.sellhub.cx/product/Extreme-Alt-Gen/', specialTag: 'On Sale' },
-        { name: '1 Month CoreAPI Access', price: '$2.50', url: 'https://klarhub.sellhub.cx/product/1-Month-CoreAPI-Access/', robuxPrice: '450', robuxUrl: 'https://www.roblox.com/catalog/116340932269907/KLAR-1-month' },
-        { name: '3 Month CoreAPI Access', price: '$3.75', url: 'https://klarhub.sellhub.cx/product/3-Month-Access/', robuxPrice: '800', robuxUrl: 'https://www.roblox.com/catalog/71184399134072/KLAR-3-Month' },
-        { name: '6 Month CoreAPI Access', price: '$5.50', url: 'https://klarhub.sellhub.cx/product/6-Month-CoreAPI-Access/', robuxPrice: '1225', robuxUrl: 'https://www.roblox.com/catalog/134764715699815/KLAR-6-Month' },
+        { name: 'Lifetime CoreAPI Premium', price: '$15.00', url: 'https://klarhub.sellhub.cx/product/New-product/', isFeatured: true },
     ];
     
     const topTiers = pricingTiers.slice(0, 3);
@@ -1470,8 +1254,8 @@ const App = () => {
                 <main>
                     <section id="home" className="min-h-screen flex flex-col items-center justify-center text-center p-8 pt-20">
                         <div className="relative z-10">
-                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-CoreAPI">CoreAPI</span></h2>
-                            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of Quality performance and reliability for FF2.</p>
+                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-klar">Klar</span> Hub</h2>
+                            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of script performance and reliability for FF2.</p>
                             <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 text-theme-secondary">
                                 <div className="flex items-center gap-2">
                                     <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"></path></svg>
@@ -1488,11 +1272,11 @@ const App = () => {
                             </div>
                             <div className="mt-8 flex flex-col items-center justify-center gap-4">
                                <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                    <button onClick={() => handleScrollTo('pricing')} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-CoreAPI hover:bg-CoreAPI-light text-white shadow-lg shadow-CoreAPI flex items-center gap-2">
+                                    <button onClick={() => handleScrollTo('pricing')} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2">
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z"/></svg>
                                         Purchase Now
                                     </button>
-                                    <button onClick={() => setIsVideoModalOpen(true)} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-transparent border border-theme text-theme-secondary hover:text-theme-primary hover:border-CoreAPI flex items-center gap-2">
+                                    <button onClick={() => setIsVideoModalOpen(true)} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-transparent border border-theme text-theme-secondary hover:text-theme-primary hover:border-klar flex items-center gap-2">
                                         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm6.39-2.908a.75.75 0 01.766.027l3.5 2.25a.75.75 0 010 1.262l-3.5 2.25A.75.75 0 018 12.25v-4.5a.75.75 0 01.39-.658z" clipRule="evenodd" /></svg>
                                         Watch Demo
                                     </button>
@@ -1509,15 +1293,15 @@ const App = () => {
                          <section id="stats" className="py-12 fade-in-section">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
                                 <div ref={usersRef}>
-                                    <p className="text-5xl font-extrabold text-CoreAPI">{usersCount.toLocaleString()}+</p>
+                                    <p className="text-5xl font-extrabold text-klar">{usersCount.toLocaleString()}+</p>
                                     <p className="text-lg text-theme-secondary mt-2">Active Users</p>
                                 </div>
                                 <div ref={updatesRef}>
-                                    <p className="text-5xl font-extrabold text-CoreAPI">{updatesCount}+</p>
+                                    <p className="text-5xl font-extrabold text-klar">{updatesCount}+</p>
                                     <p className="text-lg text-theme-secondary mt-2">Monthly Updates</p>
                                 </div>
                                 <div ref={uptimeRef}>
-                                    <p className="text-5xl font-extrabold text-CoreAPI">{uptimeCount}%</p>
+                                    <p className="text-5xl font-extrabold text-klar">{uptimeCount}%</p>
                                     <p className="text-lg text-theme-secondary mt-2">Guaranteed Uptime</p>
                                 </div>
                             </div>
@@ -1527,7 +1311,7 @@ const App = () => {
                             <div className="mt-12 grid md:grid-cols-3 gap-8">
                                 {features.map(f => (
                                      <div key={f.title} className="bg-theme-card p-6 rounded-lg border border-theme text-left interactive-card">
-                                         <svg className="w-8 h-8 text-CoreAPI mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d={f.icon} /></svg>
+                                         <svg className="w-8 h-8 text-klar mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"><path strokeLinecap="round" strokeLinejoin="round" d={f.icon} /></svg>
                                          <h4 className="text-xl font-semibold">{f.title}</h4>
                                          <p className="text-theme-secondary mt-2">{f.description}</p>
                                      </div>
@@ -1541,9 +1325,9 @@ const App = () => {
                                        <div key={game.name} className="bg-theme-card p-8 rounded-lg border border-theme text-center interactive-card flex flex-col justify-between">
                                            <div>
                                                <h4 className="text-2xl font-bold">{game.name}</h4>
-                                               <p className="text-CoreAPI font-semibold text-lg">{game.abbr}</p>
+                                               <p className="text-klar font-semibold text-lg">{game.abbr}</p>
                                            </div>
-                                           <button onClick={() => setSelectedGame(game)} className="mt-6 w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-CoreAPI/20 hover:bg-CoreAPI/30 text-CoreAPI border border-CoreAPI">
+                                           <button onClick={() => setSelectedGame(game)} className="mt-6 w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-klar/20 hover:bg-klar/30 text-klar border border-klar">
                                                View Features
                                            </button>
                                        </div>
@@ -1554,10 +1338,10 @@ const App = () => {
                             <h3 className="text-4xl font-bold">Choose Your Access</h3>
                             <div className="mt-12 grid md:grid-cols-3 gap-8 items-center">
                                 {topTiers.map(tier => (
-                                    <div key={tier.name} className={`relative bg-theme-card p-8 rounded-lg border text-center interactive-card flex flex-col ${tier.isFeatured ? 'border-CoreAPI shadow-2xl shadow-CoreAPI/40 featured-card-js' : 'border-theme'}`}>
+                                    <div key={tier.name} className={`relative bg-theme-card p-8 rounded-lg border text-center interactive-card flex flex-col ${tier.isFeatured ? 'border-klar shadow-2xl shadow-klar/40 featured-card-js' : 'border-theme'}`}>
                                         {(tier.isFeatured || tier.specialTag) && (
                                             <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 px-4 py-1 text-sm font-semibold text-white rounded-full shadow-md ${
-                                                tier.isFeatured ? 'bg-CoreAPI' : 
+                                                tier.isFeatured ? 'bg-klar' : 
                                                 tier.specialTag === 'On Sale' ? 'bg-red-500' : 'bg-indigo-500'
                                             }`}>
                                                 {tier.isFeatured ? 'Best Value' : tier.specialTag}
@@ -1565,16 +1349,16 @@ const App = () => {
                                         )}
                                         <h4 className="text-xl font-bold mb-2 h-12 flex items-center justify-center">{tier.name}</h4>
                                         <div className="flex justify-center items-end gap-2 mb-4">
-                                            <p className="text-4xl font-extrabold text-CoreAPI">{tier.price}</p>
+                                            <p className="text-4xl font-extrabold text-klar">{tier.price}</p>
                                             {tier.robuxPrice && (
                                                 <>
                                                     <span className="text-xl text-theme-secondary pb-1">or</span>
-                                                    <p className="text-4xl font-extrabold text-CoreAPI">R${tier.robuxPrice}</p>
+                                                    <p className="text-4xl font-extrabold text-klar">R${tier.robuxPrice}</p>
                                                 </>
                                             )}
                                         </div>
                                         <div className="flex flex-col gap-2 mt-auto">
-                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-CoreAPI/20 hover:bg-CoreAPI/30 text-CoreAPI border border-CoreAPI hover:shadow-[0_0_15px_var(--CoreAPI-primary)]">Purchase (USD)</a>
+                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
                                                 <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
                                                     Purchase (Robux)
@@ -1589,16 +1373,16 @@ const App = () => {
                                      <div key={tier.name} className="relative bg-theme-card p-8 rounded-lg border text-center interactive-card flex flex-col transition-[box-shadow,border-color] duration-300 border-theme">
                                         <h4 className="text-xl font-bold mb-2 h-12 flex items-center justify-center">{tier.name}</h4>
                                         <div className="flex justify-center items-end gap-2 mb-4">
-                                            <p className="text-4xl font-extrabold text-CoreAPI">{tier.price}</p>
+                                            <p className="text-4xl font-extrabold text-klar">{tier.price}</p>
                                             {tier.robuxPrice && (
                                                 <>
                                                     <span className="text-xl text-theme-secondary pb-1">or</span>
-                                                    <p className="text-4xl font-extrabold text-CoreAPI">R${tier.robuxPrice}</p>
+                                                    <p className="text-4xl font-extrabold text-klar">R${tier.robuxPrice}</p>
                                                 </>
                                             )}
                                         </div>
                                         <div className="flex flex-col gap-2 mt-auto">
-                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-CoreAPI/20 hover:bg-CoreAPI/30 text-CoreAPI border border-CoreAPI hover:shadow-[0_0_15px_var(--CoreAPI-primary)]">Purchase (USD)</a>
+                                            <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
                                                 <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
                                                     Purchase (Robux)
@@ -1624,20 +1408,20 @@ const App = () => {
                                     <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-theme"></div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-CoreAPI/10 border-2 border-CoreAPI text-CoreAPI shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">1</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">1</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Get Your Key</h4>
                                             <p className="text-theme-secondary mt-2">Choose an option below and complete the required steps on our partner's site to receive your script key.</p>
                                             <div className="flex flex-col sm:flex-row gap-4 mt-4">
-                                                <a href="https://ads.luarmor.net/get_key?for=Free_Klar_Access_Linkvertise-vdVzClkaaLyp" target="_blank" rel="noopener noreferrer" className="flex-1 inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-CoreAPI hover:bg-CoreAPI-light text-white">Get Key (Linkvertise)</a>
-                                                <a href="https://ads.luarmor.net/get_key?for=Free_Klar_Access-jfTfOGvFxqSh" target="_blank" rel="noopener noreferrer" className="flex-1 inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-CoreAPI hover:bg-CoreAPI-light text-white">Get Key (Lootlabs)</a>
+                                                <a href="https://ads.luarmor.net/get_key?for=Free_Klar_Access_Linkvertise-vdVzClkaaLyp" target="_blank" rel="noopener noreferrer" className="flex-1 inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Get Key (Linkvertise)</a>
+                                                <a href="https://ads.luarmor.net/get_key?for=Free_Klar_Access-jfTfOGvFxqSh" target="_blank" rel="noopener noreferrer" className="flex-1 inline-block py-2 px-6 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Get Key (Lootlabs)</a>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-CoreAPI/10 border-2 border-CoreAPI text-CoreAPI shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">2</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">2</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Prepare Your Script</h4>
@@ -1645,7 +1429,7 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'script_key="'}<span className="text-CoreAPI">{freeKey || "insert key"}</span>{'";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()'}
+                                                        {'script_key="'}<span className="text-klar">{freeKey || "insert key"}</span>{'";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()'}
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
@@ -1654,9 +1438,9 @@ const App = () => {
                                                         value={freeKey}
                                                         onChange={(e) => setFreeKey(e.target.value)}
                                                         placeholder="Paste your key here"
-                                                        className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-CoreAPI p-2"
+                                                        className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-klar p-2"
                                                     />
-                                                    <button onClick={handleCopyScript} className="flex-shrink-0 bg-CoreAPI hover:bg-CoreAPI-light text-white px-4 py-2 text-sm font-semibold rounded-lg transition relative overflow-hidden">
+                                                    <button onClick={handleCopyScript} className="flex-shrink-0 bg-klar hover:bg-klar-light text-white px-4 py-2 text-sm font-semibold rounded-lg transition relative overflow-hidden">
                                                         <span className={`flex items-center gap-2 transition-transform duration-300 ${scriptCopied ? '-translate-y-full' : 'translate-y-0'}`}>
                                                             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 000 2h6a1 1 0 100-2H7zM4 7a1 1 0 011-1h10a1 1 0 110 2H5a1 1 0 01-1-1zM5 11a1 1 0 100 2h4a1 1 0 100-2H5z" /></svg>
                                                             Copy Script
@@ -1672,7 +1456,7 @@ const App = () => {
                                     </div>
                                     <div className="relative">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-CoreAPI/10 border-2 border-CoreAPI text-CoreAPI shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">3</div>
+                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">3</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Execute</h4>
@@ -1690,7 +1474,7 @@ const App = () => {
                                         <div className="flex-grow"><p className="text-theme-secondary italic text-lg">"{t.text}"</p></div>
                                         <div className="mt-4 pt-4 border-t border-theme">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-CoreAPI font-semibold">{t.name}</span>
+                                                <span className="text-klar font-semibold">{t.name}</span>
                                                 <div className="flex">
                                                     {Array(t.stars).fill(0).map((_, i) => <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>)}
                                                 </div>
@@ -1723,7 +1507,7 @@ const App = () => {
                                 <p className="text-lg text-theme-secondary mt-4">Get support and connect with other users on our Discord server.</p>
                                 <DiscordCounter />
                                 <div className="mt-8 max-w-xs mx-auto">
-                                    <a href="https://discord.gg/bGmGSnW3gQ" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-CoreAPI hover:bg-CoreAPI-light text-white">Join our Community</a>
+                                    <a href="https://discord.gg/bGmGSnW3gQ" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
                                 </div>
                             </div>
                         </section>
@@ -1746,4 +1530,3 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-
