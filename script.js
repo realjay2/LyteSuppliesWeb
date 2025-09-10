@@ -1219,8 +1219,8 @@ const App = () => {
     ];
 
     const pricingTiers = [
-        { name: '1 Month CoreAPI Premium', price: '$6.00', url: 'https://website.com', isFeatured: true },
-        { name: 'Lifetime CoreAPI Premium', price: '$15.00', url: 'https://website.com', specialTag: 'Most Popular' },
+        { name: '1 Month CoreAPI Premium', price: '$6.00', url: 'https://website.com', specialTag: 'Most Popular' },
+        { name: 'Lifetime CoreAPI Premium', price: '$15.00', url: 'https://website.com', isFeatured: true },
         { name: 'CoreAPI Generator', price: '$2.00', url: 'https://website.com', specialTag: 'On Sale' },
     ];
     
