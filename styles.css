@@ -10,21 +10,6 @@ body {
     cursor: none; /* Hide native cursor */
 }
 
-.custom-cursor {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 24px;
-    height: 24px;
-    background-color: #ffb347; /* light orange */
-    border: 2px solid #ff9400; /* darker orange border */
-    border-radius: 50%;
-    pointer-events: none; /* don’t block interactions */
-    transform: translate(-50%, -50%);
-    transition: background-color 0.2s ease;
-    z-index: 9999;
-}
-
 :root {
     --klar-primary: #FFCC80;
     --klar-darker: #FF9800;
@@ -250,6 +235,21 @@ textarea.text-theme-primary {
     box-shadow: 0 0 15px 5px var(--klar-primary);
     filter: blur(2px);
     animation: scan 1.2s ease-in-out forwards;
+}
+
+.custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 24px;
+    height: 24px;
+    background-color: #ffb347; /* light orange */
+    border: 2px solid #ff9400; /* darker orange border */
+    border-radius: 50%;
+    pointer-events: none; /* don’t block interactions */
+    transform: translate(-50%, -50%);
+    transition: background-color 0.2s ease;
+    z-index: 9999;
 }
 
 @keyframes scan {
