@@ -1457,7 +1457,7 @@ const App = () => {
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
                                                     <input 
                                                         type="text" 
-                                                        value={0=freeKey}
+                                                        value={freeKey}
                                                         onChange={(e) => setFreeKey(e.target.value)}
                                                         placeholder="Paste your key here"
                                                         className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-klar p-2"
