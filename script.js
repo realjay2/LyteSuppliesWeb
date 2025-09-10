@@ -98,6 +98,11 @@ const useAnimatedCounter = (target, duration = 2000) => {
     return [ref, count];
 };
 
+const cursor = document.querySelector('.custom-cursor');
+window.addEventListener('mousemove', (e) => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
 
 const useActiveNav = (headerHeight) => {
     const [activeSection, setActiveSection] = useState('home');
