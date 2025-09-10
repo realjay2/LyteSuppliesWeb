@@ -241,9 +241,9 @@ textarea.text-theme-primary {
     position: fixed;
     top: 0;
     left: 0;
-    width: 24px;
-    height: 24px;
-    background-color: #ffb347; /* light orange */
+    width: 12px;
+    height: 12px;
+    background-color: #FFFFFF; /* light orange */
     border: 2px solid #ff9400; /* darker orange border */
     border-radius: 50%;
     pointer-events: none; /* don’t block interactions */
