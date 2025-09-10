@@ -1182,8 +1182,8 @@ const App = () => {
         }
     }, []);
 
-    const [usersRef, usersCount] = useAnimatedCounter(80);
-    const [updatesRef, updatesCount] = useAnimatedCounter(20);
+    const [usersRef, usersCount] = useAnimatedCounter(20);
+    const [updatesRef, updatesCount] = useAnimatedCounter(15);
     const [uptimeRef, uptimeCount] = useAnimatedCounter(99);
     
     const handleScrollTo = (id) => {
