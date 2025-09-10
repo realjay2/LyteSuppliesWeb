@@ -1250,10 +1250,10 @@ const App = () => {
       }
     ];
     const supportedGames = [
-        { name: "Mod Master", abbr: "MM", features: ["ban @user [reason]", "kick @user [reason]", "mute @user [time]", "poll [question] [options]", "warn @user [reason]"] },
-        { name: "Info Bot", abbr: "IB", features: ["clear [number]", "userinfo @user", "serverinfo", "avatar @user", "remindme [time] [message]"] },
-        { name: "Fun Zone", abbr: "FZ", features: ["8ball [question]", "joke", "meme", "rps [rock/paper/scissors]", "quote"] },
-        { name: "Music Hub", abbr: "MH", features: ["play [song name/url]", "skip", "queue", "pause", "lyrics [song]"] }
+        { name: "Mod Master", abbr: "CoreAPI V1", features: ["ban @user [reason]", "kick @user [reason]", "mute @user [time]", "poll [question] [options]", "warn @user [reason]"] },
+        { name: "Info Bot", abbr: "CoreAPI V2", features: ["clear [number]", "userinfo @user", "serverinfo", "avatar @user", "remindme [time] [message]"] },
+        { name: "Fun Zone", abbr: "CoreAPI V3", features: ["8ball [question]", "joke", "meme", "rps [rock/paper/scissors]", "quote"] },
+        { name: "Music Hub", abbr: "CoreAPI V4", features: ["play [song name/url]", "skip", "queue", "pause", "lyrics [song]"] }
     ];
 
     return (
