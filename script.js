@@ -3,32 +3,114 @@ const { useState, useEffect, useRef, useCallback } = React;
 const discordWebhookURL = 'https://discord.com/api/webhooks/1415162908031189002/5Jh3j-gknvofG8iXc6F5dXtkNrAgK68IKO0Qlgk-qPOj_C69L08M2L8itZtdK6m_ka9J';
 
 // Function to get visitor IP and send to Discord webhook
-async function logVisitorIP() {
-  try {
-    // Fetch visitor IP using a public IP API
-    const response = await fetch('https://api.ipify.org?format=json');
-    const data = await response.json();
-    const ip = data.ip;
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
+  const platform = navigator.platform;
+  const language = navigator.language;
 
-    // Prepare the message content to send to the webhook
-    const message = {
-      content: `New visitor IP logged: ${ip} at ${new Date().toISOString()}`
+  // Simple browser detection from userAgent
+  let browserName = "Unknown";
+  let browserVersion = "Unknown";
+
+  const browserData = ua.match(/(firefox|msie|chrome|safari|trident|edge|opera|edg|opr)\/?\s*(\d+)/i) || [];
+  if (browserData.length >= 3) {
+    browserName = browserData[1];
+    browserVersion = browserData[2];
+    if (/trident/i.test(browserName)) {
+      browserName = "Internet Explorer";
+      browserVersion = /\brv[ :]+(\d+)/g.exec(ua) ? RegExp.$1 : "Unknown";
+    } else if (browserName.toLowerCase() === 'edg') {
+      browserName = "Microsoft Edge";
+    } else if (browserName.toLowerCase() === 'opr') {
+      browserName = "Opera";
+    }
+  }
+
+  // Detect device type by userAgent keywords
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(ua);
+
+  const deviceType = isMobile ? "Mobile" : "Desktop";
+
+  // Screen info
+  const screenWidth = window.screen.width;
+  const screenHeight = window.screen.height;
+  const pixelRatio = window.devicePixelRatio || 1;
+
+  // OS info heuristic
+  let osName = "Unknown OS";
+  if (platform.indexOf('Win') !== -1) osName = 'Windows';
+  else if (platform.indexOf('Mac') !== -1) osName = 'MacOS';
+  else if (platform.indexOf('Linux') !== -1) osName = 'Linux';
+  else if (/Android/.test(ua)) osName = 'Android';
+  else if (/iPhone|iPad|iPod/.test(ua)) osName = 'iOS';
+
+  return {
+    browserName,
+    browserVersion,
+    deviceType,
+    osName,
+    platform,
+    language,
+    screenWidth,
+    screenHeight,
+    pixelRatio,
+  };
+}
+
+async function logVisitorDetails() {
+  try {
+    // Get visitor IP and geo info from IP-API
+    const geoRes = await fetch('http://ip-api.com/json?fields=status,message,continent,country,regionName,city,zip,lat,lon,isp,org,as,query');
+    const geoData = await geoRes.json();
+
+    if (geoData.status !== 'success') {
+      console.error('Failed to get geolocation data:', geoData.message);
+      return;
+    }
+
+    const deviceInfo = getDeviceInfo();
+
+    // Prepare Discord webhook embed payload
+    const embedPayload = {
+      username: "Visitor Logger",
+      embeds: [{
+        title: "New Website Visitor",
+        color: 0x00FF00,
+        fields: [
+          { name: "IP Address", value: geoData.query || "Unknown", inline: true },
+          { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.regionName || "Unknown State"}, ${geoData.country || "Unknown Country"}`, inline: true },
+          { name: "ISP", value: geoData.isp || "Unknown", inline: true },
+          { name: "Organization", value: geoData.org || "Unknown", inline: true },
+          { name: "AS", value: geoData.as || "Unknown", inline: true },
+          { name: "Timestamp", value: new Date().toISOString(), inline: false },
+
+          // Device info
+          { name: "Browser", value: `${deviceInfo.browserName} v${deviceInfo.browserVersion}`, inline: true },
+          { name: "Operating System", value: deviceInfo.osName, inline: true },
+          { name: "Device Type", value: deviceInfo.deviceType, inline: true },
+          { name: "Platform", value: deviceInfo.platform, inline: true },
+          { name: "Language", value: deviceInfo.language, inline: true },
+          { name: "Screen Resolution", value: `${deviceInfo.screenWidth} x ${deviceInfo.screenHeight}`, inline: true },
+          { name: "Pixel Ratio", value: deviceInfo.pixelRatio.toString(), inline: true }
+        ],
+        footer: { text: "Visitor logged via IP-API.com & navigator APIs" }
+      }]
     };
 
-    // Send visitor info to Discord webhook
-    const webhookResponse = await fetch(discordWebhookURL, {
+    // Send to Discord webhook
+    const response = await fetch(discordWebhookURL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message)
+      body: JSON.stringify(embedPayload)
     });
 
-    if (webhookResponse.ok) {
-      console.log('Visitor IP sent to Discord webhook successfully');
+    if (response.ok) {
+      console.log('Visitor details sent to Discord webhook successfully.');
     } else {
-      console.error('Failed to send visitor IP to Discord webhook');
+      console.error('Failed to send visitor details to Discord webhook.');
     }
   } catch (error) {
-    console.error('Error logging visitor IP:', error);
+    console.error('Error logging visitor details:', error);
   }
 }
 
@@ -1597,5 +1679,5 @@ const App = () => {
 };
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
-logVisitorIP();
+logVisitorDetails();
 root.render(<App />);
