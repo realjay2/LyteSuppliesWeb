@@ -940,7 +940,7 @@ const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeS
     const discordLink = "https://discord.gg/8NHvPQUrhd";
     const navItems = [
         { id: 'features', label: 'Features' },
-        { id: 'games', label: 'Supported Games' },
+        { id: 'games', label: 'Supported Commands' },
         { id: 'pricing', label: 'Pricing' },
         { id: 'free', label: 'Free Access' },
         { id: 'reviews', label: 'Reviews' },
@@ -987,7 +987,7 @@ const MobileMenu = ({ isOpen, onScrollTo, onTosClick, onClose }) => {
     const discordLink = "https://discord.gg/8NHvPQUrhd";
     const navItems = [
         { id: 'features', label: 'Features' },
-        { id: 'games', label: 'Supported Games' },
+        { id: 'games', label: 'Supported Commands' },
         { id: 'pricing', label: 'Pricing' },
         { id: 'free', label: 'Free Access' },
         { id: 'reviews', label: 'Reviews' },
@@ -1347,7 +1347,7 @@ const App = () => {
                             </div>
                         </section>
                         <section id="games" className="py-12 text-center fade-in-section">
-                             <h3 className="text-4xl font-bold">Supported Games</h3>
+                             <h3 className="text-4xl font-bold">Supported Commands</h3>
                              <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                   {supportedGames.map(game => (
                                        <div key={game.name} className="bg-theme-card p-8 rounded-lg border border-theme text-center interactive-card flex flex-col justify-between">
