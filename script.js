@@ -1064,7 +1064,7 @@ const AIHelperButton = ({ onClick }) => {
 const Footer = () => (
   <footer className="w-full p-8 text-center text-gray-500 text-sm">
     <p>© 2025 CoreAPI. All rights reserved.</p>
-    <p className="mt-2">made by realjay2</p>
+    <p className="mt-2">recreated by realjay2</p>
     <div className="flex justify-center gap-6 mt-4">
       <a
         href="https://discord.com/invite/your-server" // Replace with your actual Discord invite link
