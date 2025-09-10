@@ -10,9 +10,9 @@ body {
 }
 
 :root {
-    --klar-primary: #5586D6;
-    --klar-darker: #2c4a8a;
-    --klar-light: #73a1e8;
+    --klar-primary: #FFCC80;
+    --klar-darker: #FF9800;
+    --klar-light: #FFF176;
     
     --background-dark: #121212;
     --background-light: #1E1E1E;
