@@ -1198,7 +1198,7 @@ const App = () => {
 
     const handleCopyScript = () => {
         const keyToUse = freeKey || "insert key";
-        const scriptText = `script_key="${keyToUse}";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()`;
+        const scriptText = `COREAPI-"${keyToUse}"))()`;
         navigator.clipboard.writeText(scriptText).then(() => {
             setScriptCopied(true);
             setTimeout(() => setScriptCopied(false), 2000);
