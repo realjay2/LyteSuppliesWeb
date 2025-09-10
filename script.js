@@ -1198,7 +1198,7 @@ const App = () => {
 
     const handleCopyScript = () => {
         const keyToUse = freeKey || "insert key";
-        const scriptText = `COREAPI-"${keyToUse}"))()`;
+        const scriptText = `COREAPI-${keyToUse}`;
         navigator.clipboard.writeText(scriptText).then(() => {
             setScriptCopied(true);
             setTimeout(() => setScriptCopied(false), 2000);
