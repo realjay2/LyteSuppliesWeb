@@ -44,6 +44,21 @@ const useInteractiveCard = () => {
     }, []);
 };
 
+const cursor = document.querySelector('.custom-cursor');
+window.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+// Optional: hide custom cursor on button hover
+document.querySelectorAll('button').forEach(button => {
+  button.addEventListener('mouseenter', () => {
+    cursor.style.display = 'none';
+  });
+  button.addEventListener('mouseleave', () => {
+    cursor.style.display = 'block';
+  });
+});
 
 const useFadeInSection = () => {
      useEffect(() => {
@@ -97,23 +112,6 @@ const useAnimatedCounter = (target, duration = 2000) => {
     }, [target, duration]);
     return [ref, count];
 };
-
-const cursor = document.querySelector('.custom-cursor');
-window.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-});
-
-// Optional: hide custom cursor on button hover
-document.querySelectorAll('button').forEach(button => {
-  button.addEventListener('mouseenter', () => {
-    cursor.style.display = 'none';
-  });
-  button.addEventListener('mouseleave', () => {
-    cursor.style.display = 'block';
-  });
-});
-
 
 const useActiveNav = (headerHeight) => {
     const [activeSection, setActiveSection] = useState('home');
