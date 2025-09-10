@@ -44,22 +44,6 @@ const useInteractiveCard = () => {
     }, []);
 };
 
-const cursor = document.querySelector('.custom-cursor');
-window.addEventListener('mousemove', e => {
-  cursor.style.left = e.clientX + 'px';
-  cursor.style.top = e.clientY + 'px';
-});
-
-// Optional: hide custom cursor on button hover
-document.querySelectorAll('button').forEach(button => {
-  button.addEventListener('mouseenter', () => {
-    cursor.style.display = 'none';
-  });
-  button.addEventListener('mouseleave', () => {
-    cursor.style.display = 'block';
-  });
-});
-
 const useFadeInSection = () => {
      useEffect(() => {
         const sections = document.querySelectorAll('.fade-in-section');
@@ -76,6 +60,22 @@ const useFadeInSection = () => {
         }
     }, []);
 };
+
+const cursor = document.querySelector('.custom-cursor');
+window.addEventListener('mousemove', e => {
+  cursor.style.left = e.clientX + 'px';
+  cursor.style.top = e.clientY + 'px';
+});
+
+// Optional: hide custom cursor on button hover
+document.querySelectorAll('button').forEach(button => {
+  button.addEventListener('mouseenter', () => {
+    cursor.style.display = 'none';
+  });
+  button.addEventListener('mouseleave', () => {
+    cursor.style.display = 'block';
+  });
+});
 
 const useAnimatedCounter = (target, duration = 2000) => {
     const [count, setCount] = useState(0);
