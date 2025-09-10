@@ -22,6 +22,13 @@ const useInteractiveCard = () => {
             card.style.setProperty('--mouse-y', `${y}px`);
         };
 
+        const cursor = document.querySelector('.custom-cursor');
+            window.addEventListener('mousemove', (e) => {
+              cursor.style.left = e.clientX + 'px';
+              cursor.style.top = e.clientY + 'px';
+            });
+
+        
         const handleMouseLeave = (e) => {
             const card = e.currentTarget;
             const isFeatured = card.classList.contains('featured-card-js');
