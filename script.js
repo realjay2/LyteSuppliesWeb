@@ -1239,7 +1239,7 @@ const App = () => {
 
      const testimonials = [
         { name: 'Customer', stars: 5, text: "easiest checkout", date: "Wed Sep 3 2025" },
-        { name: 'Customer', stars: 5, text: "Amazing and easy", date: "Wed Sep 10 2025" },
+        { name: 'Customer', stars: 4.5, text: "easy to work out", date: "Wed Sep 10 2025" },
         { name: 'Customer', stars: 5, text: "best bot out there cop now", date: "Fri Sep 05 2025" }
     ];
      const faqs = [
