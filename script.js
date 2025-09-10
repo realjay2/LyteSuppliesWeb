@@ -1198,7 +1198,7 @@ const App = () => {
 
     const handleCopyScript = () => {
         const keyToUse = freeKey || "insert key";
-        const scriptText = `COREAPI-0"${keyToUse}"))()`;
+        const scriptText = `COREAPI-"${keyToUse}"))()`;
         navigator.clipboard.writeText(scriptText).then(() => {
             setScriptCopied(true);
             setTimeout(() => setScriptCopied(false), 2000);
@@ -1451,13 +1451,13 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'COREAPI-0'}<span className="text-klar">{freeKey || "INSERT KEY"}</span>
+                                                        {'COREAPI-'}<span className="text-klar">{freeKey || "INSERT KEY"}</span>
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
                                                     <input 
                                                         type="text" 
-                                                        value={freeKey}
+                                                        value={0=freeKey}
                                                         onChange={(e) => setFreeKey(e.target.value)}
                                                         placeholder="Paste your key here"
                                                         className="w-full bg-theme-button-secondary border border-theme rounded-lg text-theme-primary placeholder-theme-secondary focus:outline-none focus:ring-2 focus:ring-klar p-2"
