@@ -937,7 +937,7 @@ const ComparePlansModal = ({ onClose, allTiers }) => {
 };
 
 const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeSection, isMobileMenuOpen, onGameClick, theme, setTheme }) => {
-    const discordLink = "https://discord.gg/bGmGSnW3gQ";
+    const discordLink = "https://discord.gg/8NHvPQUrhd";
     const navItems = [
         { id: 'features', label: 'Features' },
         { id: 'games', label: 'Supported Games' },
@@ -984,7 +984,7 @@ const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeS
 
 const MobileMenu = ({ isOpen, onScrollTo, onTosClick, onClose }) => {
     if (!isOpen) return null;
-    const discordLink = "https://discord.gg/bGmGSnW3gQ";
+    const discordLink = "https://discord.gg/8NHvPQUrhd";
     const navItems = [
         { id: 'features', label: 'Features' },
         { id: 'games', label: 'Supported Games' },
@@ -1505,7 +1505,7 @@ const App = () => {
                                 <p className="text-lg text-theme-secondary mt-4">Get support and connect with other users on our Discord server.</p>
                                 <DiscordCounter />
                                 <div className="mt-8 max-w-xs mx-auto">
-                                    <a href="https://discord.gg/bGmGSnW3gQ" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
+                                    <a href="https://discord.gg/8NHvPQUrhd" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
                                 </div>
                             </div>
                         </section>
