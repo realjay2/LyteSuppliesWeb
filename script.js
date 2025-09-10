@@ -862,21 +862,17 @@ const PreviewModal = ({ onClose }) => {
 const ComparePlansModal = ({ onClose, allTiers }) => {
     const features = [
         { name: 'Price', key: 'price' },
-        { name: 'Robux Price', key: 'robuxPrice' },
         { 
             name: 'Duration', 
             getValue: (tier) => {
                 if (tier.name.includes('Lifetime')) return 'Lifetime';
+                if (tier.name.includes('Generator')) return 'Lifetime';
                 if (tier.name.includes('1 Week')) return '7 Days';
                 if (tier.name.includes('1 Month')) return '30 Days';
                 if (tier.name.includes('3 Month')) return '90 Days';
                 if (tier.name.includes('6 Month')) return '180 Days';
                 return 'N/A';
             }
-        },
-        { 
-            name: 'Access To All Games',
-            getValue: (tier) => tier.name.includes('Klar') ? '✔️' : 'N/A'
         },
         { 
             name: 'Premium Support',
