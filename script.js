@@ -1408,7 +1408,7 @@ const App = () => {
                                     <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-theme"></div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(221,115,21,0.4)] backdrop-blur-sm">1</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">1</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Get Your Key</h4>
@@ -1421,7 +1421,7 @@ const App = () => {
                                     </div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(221,115,21,0.4)] backdrop-blur-sm">2</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">2</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Prepare Your Script</h4>
@@ -1456,7 +1456,7 @@ const App = () => {
                                     </div>
                                     <div className="relative">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(221,115,21,0.4)] backdrop-blur-sm">3</div>
+                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">3</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Execute</h4>
