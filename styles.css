@@ -7,6 +7,7 @@ body {
     background-color: var(--background-dark);
     color: var(--text-primary);
     transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: url('https://cdn-icons-png.flaticon.com/512/3771/3771695.png'), auto;
 }
 
 :root {
