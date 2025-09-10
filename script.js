@@ -118,16 +118,14 @@ const useActiveNav = (headerHeight) => {
 };
 
 const Logo = ({ onScrollTo }) => (
-    <svg 
-        onClick={() => onScrollTo('home')}
-        className="h-8 w-auto cursor-pointer" 
-        viewBox="0 0 100 100" 
-        fill="none" 
-        xmlns="http://www.w3.org/2000/svg"
-    >
-        <path d="M12 10 L12 90 L28 90 L28 60 L60 90 L75 90 L40 50 L75 10 L60 10 L28 40 L28 10 L12 10 Z" className="fill-theme-primary stroke-theme-primary" strokeWidth="4"/>
-    </svg>
+  <img
+    onClick={() => onScrollTo('home')}
+    className="h-8 w-auto cursor-pointer"
+    src="https://media.discordapp.net/attachments/1379463876101537873/1415129658265178212/core.png?ex=68c215b2&is=68c0c432&hm=a910b8115a8d307e1cf62c9421799ef88e08a3b5a0ad858449795864e064057f&="
+    alt="Logo"
+  />
 );
+
 
 const DiscordCounter = () => {
     const [onlineCount, setOnlineCount] = useState(null);
