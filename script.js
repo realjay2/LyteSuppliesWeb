@@ -1216,9 +1216,6 @@ const App = () => {
     };
 
     const demoVideos = [
-        "https://www.youtube.com/embed/d2hR2gRhME0?autoplay=1",
-        "https://www.youtube.com/embed/97osD4zLYpA?autoplay=1",
-        "https://www.youtube.com/embed/03Y0NuUEOV8?autoplay=1"
     ];
 
     const pricingTiers = [
@@ -1229,15 +1226,14 @@ const App = () => {
     const bottomTiers = pricingTiers.slice(3);
 
      const testimonials = [
-        { name: 'Customer', stars: 5, text: "easiest checkout", date: "Wed Jul 23 2025" },
-        { name: 'Customer', stars: 5, text: "Amazing and easy", date: "Wed Jul 16 2025" },
-        { name: 'Customer', stars: 5, text: "best script out there cop now", date: "Fri Jun 06 2025" }
+        { name: 'Customer', stars: 5, text: "easiest checkout", date: "Wed Sep 3 2025" },
+        { name: 'Customer', stars: 5, text: "Amazing and easy", date: "Wed Sep 10 2025" },
+        { name: 'Customer', stars: 5, text: "best bot out there cop now", date: "Fri Sep 05 2025" }
     ];
      const faqs = [
         { q: "Is CoreAPI a one-time purchase?", a: "We offer both subscription and lifetime access plans. You can choose the one that best suits your needs." },
         { q: "What payment methods are accepted?", a: "We accept all major payment methods through our secure online storefront, including credit cards, PayPal, and more." },
-        { q: "What executors are compatible?", a: "Our scripts are designed to be compatible with all major, high-quality executors on the market." },
-        { q: "How often are the scripts updated?", a: "We update our scripts regularly to ensure compatibility with the latest Roblox updates and to add new features. Updates are always free for active subscribers or lifetime members." }
+        { q: "How often is the bot being updated?", a: "We update our bot regularly to ensure compatibility with the latest Discord updates and to add new features. Updates are always free for active users or lifetime members." }
     ];
     const features = [
         { title: "Perfect Kicking & Throwing", description: "Achieve perfect accuracy and power on every kick and throw with our advanced precision assistance.", icon: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.82m5.84-2.56v4.82a6 6 0 01-1.292 3.536l-1.992-1.992a4.5 4.5 0 00-6.364-6.364l-1.992-1.992A6 6 0 0115.59 14.37z" },
@@ -1245,10 +1241,10 @@ const App = () => {
         { title: "Ball Magnets", description: "Automatically catch passes with our intelligent ball magnet, ensuring you never drop the ball.", icon: "M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" }
     ];
     const supportedGames = [
-        { name: "Football Fusion 2", abbr: "FF2", features: ["Ball Magnets", "Pull Vector", "Enhanced Movement (Jump & Speed)", "No Jump Cooldown", "Custom Catch Effects"] },
-        { name: "Ultimate Football", abbr: "UF", features: ["Football Size Manipulation", "Arm Resize", "Enhanced Movement (Jump & Speed)", "No-Clip (Utility)"] },
-        { name: "Murders VS Sheriffs Duels", abbr: "MVSD", features: ["Advanced Triggerbot", "Hitbox Extender", "Enhanced Movement (Jump & Speed)", "Player ESP"] },
-        { name: "Arsenal", abbr: "Arsenal", features: ["Silent Aim", "Advanced Hitbox Manipulation", "Triggerbot", "Visual Tags (Admin, etc.)"] }
+        { name: "Mod Master", abbr: "MM", features: ["ban @user [reason]", "kick @user [reason]", "mute @user [time]", "poll [question] [options]", "warn @user [reason]"] },
+        { name: "Info Bot", abbr: "IB", features: ["clear [number]", "userinfo @user", "serverinfo", "avatar @user", "remindme [time] [message]"] },
+        { name: "Fun Zone", abbr: "FZ", features: ["8ball [question]", "joke", "meme", "rps [rock/paper/scissors]", "quote"] },
+        { name: "Music Hub", abbr: "MH", features: ["play [song name/url]", "skip", "queue", "pause", "lyrics [song]"] }
     ];
 
     return (
