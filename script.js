@@ -1451,7 +1451,7 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'script_key="'}<span className="text-klar">{freeKey || "insert key"}</span>{'";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()'}
+                                                        {'COREAPI-'}<span className="text-klar">{freeKey || "insert key"}</span>
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
