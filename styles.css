@@ -244,7 +244,7 @@ textarea.text-theme-primary {
     width: 12px;
     height: 12px;
     background-color: #FFFFFF; /* light orange */
-    border: 2px solid #ff9400; /* darker orange border */
+    border: 2px solid #FFFFFF; /* darker orange border */
     border-radius: 50%;
     pointer-events: none; /* don’t block interactions */
     transform: translate(-50%, -50%);
