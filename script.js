@@ -1236,9 +1236,18 @@ const App = () => {
         { q: "How often is the bot being updated?", a: "We update our bot regularly to ensure compatibility with the latest Discord updates and to add new features. Updates are always free for active users or lifetime members." }
     ];
     const features = [
-        { title: "Perfect Kicking & Throwing", description: "Achieve perfect accuracy and power on every kick and throw with our advanced precision assistance.", icon: "M15.59 14.37a6 6 0 01-5.84 7.38v-4.82m5.84-2.56v4.82a6 6 0 01-1.292 3.536l-1.992-1.992a4.5 4.5 0 00-6.364-6.364l-1.992-1.992A6 6 0 0115.59 14.37z" },
-        { title: "QB Aimbot", description: "Never miss a throw with our precise quarterback aimbot, featuring prediction and sensitivity controls.", icon: "M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" },
-        { title: "Ball Magnets", description: "Automatically catch passes with our intelligent ball magnet, ensuring you never drop the ball.", icon: "M15.042 21.672L13.684 16.6m0 0l-2.51 2.225.569-9.47 5.227 7.917-3.286-.672zm-7.518-.267A8.25 8.25 0 1120.25 10.5M8.288 14.212A5.25 5.25 0 1117.25 10.5" }
+      {
+        title: "Moderation Commands",
+        description: "Ban, kick, mute, and warn users with easy-to-use moderation commands to keep your community safe."
+      },
+      {
+        title: "Information Commands",
+        description: "Get user info, server stats, and personalized reminders to stay informed about your community."
+      },
+      {
+        title: "Fun Commands",
+        description: "Enjoy games, jokes, memes, and interactive activities like 8ball and rock-paper-scissors."
+      }
     ];
     const supportedGames = [
         { name: "Mod Master", abbr: "MM", features: ["ban @user [reason]", "kick @user [reason]", "mute @user [time]", "poll [question] [options]", "warn @user [reason]"] },
