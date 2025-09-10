@@ -1219,7 +1219,9 @@ const App = () => {
     ];
 
     const pricingTiers = [
-        { name: 'Lifetime CoreAPI Premium', price: '$15.00', url: 'https://klarhub.sellhub.cx/product/New-product/', isFeatured: true },
+        { name: '1 Month CoreAPI Premium', price: '$6.00', url: 'https://website.com', isFeatured: true },
+        { name: 'Lifetime CoreAPI Premium', price: '$15.00', url: 'https://website.com', specialTag: 'Most Popular' },
+        { name: 'CoreAPI Generator', price: '$2.00', url: 'https://website.com', specialTag: 'On Sale' },
     ];
     
     const topTiers = pricingTiers.slice(0, 3);
