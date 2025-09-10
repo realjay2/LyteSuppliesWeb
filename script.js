@@ -392,7 +392,7 @@ const AIHelperModal = ({ onClose }) => {
         e.preventDefault();
         sendMessage(input);
     };
-    const quickQuestions = ["What are the features for FF2?", "How much is lifetime access?", "Is CoreAPI safe to use?"];
+    const quickQuestions = ["What are the features for the Bot?", "How much is lifetime access?", "Is CoreAPI safe to use?"];
     return (
         <Modal onClose={onClose}>
             {(handleClose) => (
