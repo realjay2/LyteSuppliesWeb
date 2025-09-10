@@ -1198,7 +1198,7 @@ const App = () => {
 
     const handleCopyScript = () => {
         const keyToUse = freeKey || "insert key";
-        const scriptText = `COREAPI-"${keyToUse}"))()`;
+        const scriptText = `COREAPI-0"${keyToUse}"))()`;
         navigator.clipboard.writeText(scriptText).then(() => {
             setScriptCopied(true);
             setTimeout(() => setScriptCopied(false), 2000);
@@ -1451,7 +1451,7 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'COREAPI-'}<span className="text-klar">{freeKey || "INSERT KEY"}</span>
+                                                        {'COREAPI-0'}<span className="text-klar">{freeKey || "INSERT KEY"}</span>
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
