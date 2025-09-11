@@ -1,5 +1,8 @@
 const { useState, useEffect, useRef, useCallback } = React;
-const webhookURL = process.env.WEBHOOK_URL;
+
+const webhookURL = process.env.NEXT_PUBLIC_WEBHOOK_URL;
+
+
 const discordWebhookURL = `${webhookURL}`;
 
 // Function to get visitor IP and send to Discord webhook
