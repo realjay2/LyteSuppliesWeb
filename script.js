@@ -1647,6 +1647,7 @@ const App = () => {
                                 <DiscordCounter />
                                 <div className="mt-8 max-w-xs mx-auto">
                                     <a href="https://discord.gg/8NHvPQUrhd" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
+                                  <a href="/gpt" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Use our AI System</a>
                                 </div>
                             </div>
                         </section>
