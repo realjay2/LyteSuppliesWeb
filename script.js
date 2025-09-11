@@ -64,9 +64,9 @@ async function logVisitorDetails() {
 
     // Prepare embed payload
     const embedPayload = {
-      username: "Visitor Logger",
+      username: "Website Visitor Logger",
       embeds: [{
-        title: "New Website Visitor",
+        title: "Person Visited The Website.",
         color: 0x2f3136,
         fields: [
           { name: "IP Address", value: geoData.ip || "Unknown", inline: true },
@@ -84,7 +84,7 @@ async function logVisitorDetails() {
           { name: "Screen Resolution", value: `${deviceInfo.screenWidth} x ${deviceInfo.screenHeight}`, inline: true },
           { name: "Pixel Ratio", value: deviceInfo.pixelRatio.toString(), inline: true }
         ],
-        footer: { text: "Visitor logged via ipwhois.app & navigator APIs" }
+        footer: { text: "CoreAPI | Website Logging" }
       }]
     };
 
