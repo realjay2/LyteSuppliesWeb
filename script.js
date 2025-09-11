@@ -1,9 +1,9 @@
-const { useState, useEffect, useRef, useCallback } = React;
-
 export default async function handler(request, response) {
   if (request.method !== 'POST') {
     return response.status(405).json({ error: 'Method not allowed' });
   }
+  
+const { useState, useEffect, useRef, useCallback } = React;
   
 const webhookURL = process.env.NEXT_PUBLIC_WEBHOOK_URL;
 
