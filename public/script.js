@@ -1448,156 +1448,67 @@ const App = () => {
         { name: "Music Hub", abbr: "CoreAPI V4", features: ["play [song name/url]", "skip", "queue", "pause", "lyrics [song]"] }
     ];
 
-return (
-  <div className="bg-theme-dark text-theme-primary min-h-screen">
-    <AuroraBackground />
-    <div className="relative z-10">
-      {/* Header */}
-      <Header
-        headerRef={headerRef}
-        onScrollTo={handleScrollTo}
-        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        onTosClick={() => setIsTosModalOpen(true)}
-        isMobileMenuOpen={isMobileMenuOpen}
-        activeSection={activeSection}
-        theme={theme}
-        setTheme={setTheme}
-      />
-
-      {/* Mobile Menu */}
-      <MobileMenu
-        isOpen={isMobileMenuOpen}
-        onScrollTo={handleScrollTo}
-        onTosClick={() => {
-          setIsTosModalOpen(true);
-          setIsMobileMenuOpen(false);
-        }}
-        onClose={() => setIsMobileMenuOpen(false)}
-      />
-
-      {/* Main content */}
-      <main>
-        <section
-          id="home"
-          className="min-h-screen flex flex-col items-center justify-center text-center p-8 pt-20"
-        >
-          <div className="relative z-10">
-            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">
-              Welcome to <span className="text-klar">CoreAPI</span>
-            </h2>
-            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">
-              The pinnacle of Quality performance and reliability for Discord.
-            </p>
-
-            {/* Status badges */}
-            <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 text-theme-secondary">
-              {/* Badge 1 */}
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-green-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-                <span>99% Uptime</span>
-              </div>
-
-              {/* Badge 2 */}
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-yellow-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M11.983 1.904a.75.75 0 00-1.217-.866l-7.5 10.5a.75.75 0 00.925 1.217L8 10.463V18a.75.75 0 001.5 0v-7.537l4.017-2.87a.75.75 0 00-.534-1.217L11.983 1.904z" />
-                </svg>
-                <span>Lightning Fast</span>
-              </div>
-
-              {/* Badge 3 */}
-              <div className="flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-blue-400"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M10.868 2.884c.321-.772 1.415-.772 1.736 0l.645 1.558a.75.75 0 00.729.516h1.634c.82 0 1.123.993.57 1.488l-1.328 1.004a.75.75 0 00-.286.905l.492 1.772c.245.882-.733 1.579-1.482 1.06l-1.423-.982a.75.75 0 00-.894 0l-1.423.982c-.749.52-1.726-.178-1.482-1.06l.492-1.772a.75.75 0 00-.286-.905l-1.328-1.004c-.553-.495-.25-1.488.57-1.488h1.634a.75.75 0 00.73-.516l.645-1.558z" />
-                </svg>
-                <span>Premium Quality</span>
-              </div>
-            </div>
-
-            {/* Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 w-full">
-              {/* Purchase Now */}
-              <button
-                onClick={() => handleScrollTo("pricing")}
-                className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2"
-              >
-                <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z" />
-                </svg>
-                Purchase Now
-              </button>
-
-              {/* Discord Button */}
-              <button
-                id="discordBtn"
-                onClick={() => {
-                  if (!localStorage.getItem("discordUsername")) {
-                    window.location.href = "/api/discord";
-                  }
-                }}
-                className="py-3 px-8 rounded-lg font-semibold text-center transition bg-[#5865F2] hover:bg-[#4752C4] text-white shadow-lg shadow-[#5865F2] flex items-center gap-2"
-              >
-                <svg
-                  className="w-5 h-5"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                >
-                  <path d="M20.317 4.3698..." />
-                </svg>
-                {localStorage.getItem("discordUsername")
-                  ? `Hello, ${localStorage.getItem("discordUsername")}`
-                  : "Connect Discord"}
-              </button>
-            </div>
-
-            {/* Discord Counter */}
-            <DiscordCounter />
-
-            {/* Preview Hub */}
-            <button
-              onClick={handlePreviewClick}
-              className="mt-4 py-2 px-6 rounded-lg font-semibold text-center transition bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text flex items-center gap-2"
-            >
-              <svg
-                className="w-5 h-5"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                <path
-                  fillRule="evenodd"
-                  d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                  clipRule="evenodd"
+    return (
+        <div className="bg-theme-dark text-theme-primary">
+            <AuroraBackground />
+            <div className="relative z-10">
+                <Header
+                    headerRef={headerRef}
+                    onScrollTo={handleScrollTo}
+                    onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    onTosClick={() => setIsTosModalOpen(true)}
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    activeSection={activeSection}
+                    theme={theme}
+                    setTheme={setTheme}
                 />
-              </svg>
-              Preview Hub
-            </button>
-          </div>
-        </section>
-      </main>
-                  <div className="w-full max-w-6xl mx-auto px-4 space-y-24">
+                 <MobileMenu
+                    isOpen={isMobileMenuOpen}
+                    onScrollTo={handleScrollTo}
+                    onTosClick={() => {
+                        setIsTosModalOpen(true);
+                        setIsMobileMenuOpen(false);
+                    }}
+                    onClose={() => setIsMobileMenuOpen(false)}
+                />
+                <main>
+                    <section id="home" className="min-h-screen flex flex-col items-center justify-center text-center p-8 pt-20">
+                        <div className="relative z-10">
+                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-klar">Klar</span> Hub</h2>
+                            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of script performance and reliability for FF2.</p>
+                            <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 text-theme-secondary">
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"></path></svg>
+                                    <span>100% Undetected</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M11.983 1.904a.75.75 0 00-1.217-.866l-7.5 10.5a.75.75 0 00.925 1.217L8 10.463V18a.75.75 0 001.5 0v-7.537l4.017-2.87a.75.75 0 00-.534-1.217L11.983 1.904z"></path></svg>
+                                    <span>Lightning Fast</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.868 2.884c.321-.772 1.415-.772 1.736 0l.645 1.558a.75.75 0 00.729.516h1.634c.82 0 1.123.993.57 1.488l-1.328 1.004a.75.75 0 00-.286.905l.492 1.772c.245.882-.733 1.579-1.482 1.06l-1.423-.982a.75.75 0 00-.894 0l-1.423.982c-.749.52-1.726-.178-1.482-1.06l.492-1.772a.75.75 0 00-.286-.905l-1.328-1.004c-.553-.495-.25-1.488.57-1.488h1.634a.75.75 0 00.73-.516l.645-1.558z"></path></svg>
+                                    <span>Premium Quality</span>
+                                </div>
+                            </div>
+                            <div className="mt-8 flex flex-col items-center justify-center gap-4">
+                               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+                                    <button onClick={() => handleScrollTo('pricing')} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z"/></svg>
+                                        Purchase Now
+                                    </button>
+                                    <button onClick={() => setIsVideoModalOpen(true)} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-transparent border border-theme text-theme-secondary hover:text-theme-primary hover:border-klar flex items-center gap-2">
+                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M2 10a8 8 0 1116 0 8 8 0 01-16 0zm6.39-2.908a.75.75 0 01.766.027l3.5 2.25a.75.75 0 010 1.262l-3.5 2.25A.75.75 0 018 12.25v-4.5a.75.75 0 01.39-.658z" clipRule="evenodd" /></svg>
+                                        Watch Demo
+                                    </button>
+                                </div>
+                                <DiscordCounter />
+                                 <button onClick={handlePreviewClick} className="mt-2 py-2 px-6 rounded-lg font-semibold text-center transition bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text flex items-center gap-2">
+                                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
+                                    Preview Hub
+                                 </button>
+                            </div>
+                        </div>
+                    </section>
                     <div className="w-full max-w-6xl mx-auto px-4 space-y-24">
                          <section id="stats" className="py-12 fade-in-section">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
@@ -1628,7 +1539,7 @@ return (
                             </div>
                         </section>
                         <section id="games" className="py-12 text-center fade-in-section">
-                             <h3 className="text-4xl font-bold">Supported Commands</h3>
+                             <h3 className="text-4xl font-bold">Supported Games</h3>
                              <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                   {supportedGames.map(game => (
                                        <div key={game.name} className="bg-theme-card p-8 rounded-lg border border-theme text-center interactive-card flex flex-col justify-between">
@@ -1669,7 +1580,7 @@ return (
                                         <div className="flex flex-col gap-2 mt-auto">
                                             <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
-                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#F2811E]/20 hover:bg-[#F2811E]/30 text-[#F2811E] border border-[#F2811E]">
+                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
                                                     Purchase (Robux)
                                                 </a>
                                             )}
@@ -1693,7 +1604,7 @@ return (
                                         <div className="flex flex-col gap-2 mt-auto">
                                             <a href={tier.url} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition-all duration-300 bg-klar/20 hover:bg-klar/30 text-klar border border-klar hover:shadow-[0_0_15px_var(--klar-primary)]">Purchase (USD)</a>
                                             {tier.robuxUrl && (
-                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#F2811E]/20 hover:bg-[#F2811E]/30 text-[#F2811E] border border-[#F2811E]">
+                                                <a href={tier.robuxUrl} target="_blank" rel="noopener noreferrer" className="inline-block w-full py-2 px-4 rounded-lg font-semibold text-center transition bg-[#00A2FF]/20 hover:bg-[#00A2FF]/30 text-[#00A2FF] border border-[#00A2FF]">
                                                     Purchase (Robux)
                                                 </a>
                                             )}
@@ -1710,14 +1621,14 @@ return (
                         <section id="free" className="py-12 fade-in-section">
                             <div className="text-center">
                                 <h3 className="text-4xl font-bold">Get Free Access</h3>
-                                <p className="text-lg text-theme-secondary mt-4 max-w-2xl mx-auto">Follow these three simple steps to get a free key and start using CoreAPI.</p>
+                                <p className="text-lg text-theme-secondary mt-4 max-w-2xl mx-auto">Follow these three simple steps to get a free key and start using Klar Hub.</p>
                             </div>
                             <div className="mt-12 max-w-3xl mx-auto">
                                 <div className="relative pl-12">
                                     <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-theme"></div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">1</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">1</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Get Your Key</h4>
@@ -1730,7 +1641,7 @@ return (
                                     </div>
                                     <div className="relative mb-12">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">2</div>
+                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">2</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
                                             <h4 className="text-2xl font-semibold">Prepare Your Script</h4>
@@ -1738,7 +1649,7 @@ return (
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'COREAPI-'}<span className="text-klar">{freeKey || "INSERT KEY"}</span>
+                                                        {'script_key="'}<span className="text-klar">{freeKey || "insert key"}</span>{'";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()'}
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
@@ -1765,11 +1676,11 @@ return (
                                     </div>
                                     <div className="relative">
                                         <div className="absolute left-0 top-0 w-12 h-12 flex items-center justify-center">
-                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl  bg-orange-200 border-2 border-orange-400 text-orange-700  shadow-lg shadow-orange-400 backdrop-blur-sm">3</div>
+                                            <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">3</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
-                                            <h4 className="text-2xl font-semibold">Redeem</h4>
-                                            <p className="text-theme-secondary mt-2">You're all set! Now just paste the full code you copied into the /redeem command and run it.</p>
+                                            <h4 className="text-2xl font-semibold">Execute</h4>
+                                            <p className="text-theme-secondary mt-2">You're all set! Now just paste the full script you copied into your executor and run it in-game.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -1816,8 +1727,7 @@ return (
                                 <p className="text-lg text-theme-secondary mt-4">Get support and connect with other users on our Discord server.</p>
                                 <DiscordCounter />
                                 <div className="mt-8 max-w-xs mx-auto">
-                                    <a href="https://discord.gg/8NHvPQUrhd" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
-                                  <a href="/gpt" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Use our AI System</a>
+                                    <a href="https://discord.gg/bGmGSnW3gQ" target="_blank" rel="noopener noreferrer" className="block py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white">Join our Community</a>
                                 </div>
                             </div>
                         </section>
