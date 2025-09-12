@@ -1490,7 +1490,7 @@ return (
                 onClick={() => {
                   // If already logged in, do nothing
                   if (!localStorage.getItem("discordUsername")) {
-                    window.location.href = "/auth/discord"; // server-side OAuth
+                    window.location.href = "/api/discord"; // server-side OAuth
                   }
                 }}
                 className="py-3 px-8 rounded-lg font-semibold text-center transition bg-[#5865F2] hover:bg-[#4752C4] text-white shadow-lg shadow-[#5865F2] flex items-center gap-2"
