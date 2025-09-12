@@ -1,8 +1,3 @@
-// Example Express endpoint for GPT chat. Replace OPENAI_API_KEY with yours.
-
-import express from 'express';
-import { Configuration, OpenAIApi } from 'openai';
-
 const app = express();
 app.use(express.json());
 
