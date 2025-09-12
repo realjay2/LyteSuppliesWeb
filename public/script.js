@@ -479,33 +479,55 @@ const GameFeaturesModal = ({ game, onClose }) => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-    const discordBtn = document.getElementById("discordBtn");
-    const username = getCookie("discordUsername");
+  // Check URL for Discord login parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const discordUsername = urlParams.get("discordUsername");
+  const discordID = urlParams.get("discordID");
 
-    if (username) {
-        updateDiscordButton(username);
-    }
+  if (discordUsername && discordID) {
+    // Save to localStorage
+    localStorage.setItem("discordUsername", discordUsername);
+    localStorage.setItem("discordID", discordID);
 
-    if (discordBtn) {
-        discordBtn.addEventListener("click", () => {
-            window.location.href = "/api/discord"; // server-side route
-        });
-    }
+    // Clean URL
+    const cleanUrl = window.location.origin + window.location.pathname;
+    window.history.replaceState({}, document.title, cleanUrl);
+
+    // Show popup
+    showLoginPopup(discordUsername);
+  }
+
+  // Handle Discord button clicks (if you have one)
+  const discordBtn = document.getElementById("discordBtn");
+  if (discordBtn) {
+    discordBtn.addEventListener("click", () => {
+      window.location.href = "/api/discord";
+    });
+  }
 });
 
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-    return null;
+// Fancy popup
+function showLoginPopup(username) {
+  const popup = document.createElement("div");
+  popup.innerText = `Hello, ${username}! You are now logged in.`;
+  popup.className = `
+    fixed bottom-4 right-4 bg-orange-100 border border-orange-400 text-orange-900 px-6 py-4 rounded-lg shadow-lg opacity-0 transform translate-y-8 transition-all duration-500
+  `;
+  document.body.appendChild(popup);
+
+  // Trigger fade-in
+  setTimeout(() => {
+    popup.classList.remove("opacity-0", "translate-y-8");
+    popup.classList.add("opacity-100", "translate-y-0");
+  }, 50);
+
+  // Auto remove after 5s
+  setTimeout(() => {
+    popup.classList.add("opacity-0", "translate-y-8");
+    setTimeout(() => popup.remove(), 500);
+  }, 5000);
 }
 
-function updateDiscordButton(username) {
-    const discordBtn = document.getElementById("discordBtn");
-    if (discordBtn) {
-        discordBtn.textContent = `Hello, ${username}`;
-    }
-}
 
 const AIHelperModal = ({ onClose }) => {
     const [input, setInput] = useState('');
