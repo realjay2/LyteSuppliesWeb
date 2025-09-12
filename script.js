@@ -1,5 +1,4 @@
 const { useState, useEffect, useRef, useCallback } = React;
-const fetch = require("node-fetch");
 
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
@@ -108,25 +107,6 @@ async function logVisitorDetails() {
   }
 }
 
-(async () => {
-  // ✅ Replace with your IPQualityScore API key
-  const IPQS_API_KEY = "SWgopyQ1BpuIatIVTOfez7dgTNyENSpm";
-
-  try {
-    // Fetch visitor IP info
-    const res = await fetch(`https://ipqualityscore.com/api/json/ip/${IPQS_API_KEY}/`);
-    const data = await res.json();
-
-    // Check if the user is using VPN, proxy, or Tor
-    if (data.vpn || data.proxy || data.tor) {
-      // Redirect to the VPN blocked page
-      window.location.href = "/vpn";
-    }
-  } catch (err) {
-    console.error("VPN detection failed:", err);
-    // Fail open: let the user continue if API fails
-  }
-})();
 
 const useInteractiveCard = () => {
     useEffect(() => {
