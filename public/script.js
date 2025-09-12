@@ -1,13 +1,5 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
-document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("discordBtn");
-  if (btn) {
-    btn.addEventListener("click", handleDiscordLogin);
-  }
-});
-
-
 function updateDiscordButton(username) {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
@@ -501,6 +493,35 @@ const GameFeaturesModal = ({ game, onClose }) => {
         </Modal>
      );
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    const discordBtn = document.getElementById("discordBtn");
+    const username = getCookie("discordUsername");
+
+    if (username) {
+        updateDiscordButton(username);
+    }
+
+    if (discordBtn) {
+        discordBtn.addEventListener("click", () => {
+            window.location.href = "/auth/discord"; // server-side route
+        });
+    }
+});
+
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+    return null;
+}
+
+function updateDiscordButton(username) {
+    const discordBtn = document.getElementById("discordBtn");
+    if (discordBtn) {
+        discordBtn.textContent = `Hello, ${username}`;
+    }
+}
 
 const AIHelperModal = ({ onClose }) => {
     const [input, setInput] = useState('');
