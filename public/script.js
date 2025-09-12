@@ -1475,7 +1475,7 @@ const App = () => {
                     <section id="home" className="min-h-screen flex flex-col items-center justify-center text-center p-8 pt-20">
                         <div className="relative z-10">
                             <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-klar">Core</span>API</h2>
-                            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of script performance and reliability for FF2.</p>
+                            <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of bot performance and reliability for automated inquries.</p>
                             <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 text-theme-secondary">
                                 <div className="flex items-center gap-2">
                                     <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clipRule="evenodd"></path></svg>
@@ -1649,7 +1649,7 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'script_key="'}<span className="text-klar">{freeKey || "insert key"}</span>{'";\nloadstring(game:HttpGet("https://api.luarmor.net/files/v3/loaders/50da22b3657a22c353b0dde631cb1dcf.lua"))()'}
+                                                        {'COREAPI-"'}<span className="text-klar">{freeKey || "insert key"}
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
@@ -1679,8 +1679,8 @@ const App = () => {
                                             <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">3</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
-                                            <h4 className="text-2xl font-semibold">Execute</h4>
-                                            <p className="text-theme-secondary mt-2">You're all set! Now just paste the full script you copied into your executor and run it in-game.</p>
+                                            <h4 className="text-2xl font-semibold">Redeem</h4>
+                                            <p className="text-theme-secondary mt-2">You're all set! Now just paste the full code you copied into our bot commands channel and run /redeem for special perks.</p>
                                         </div>
                                     </div>
                                 </div>
