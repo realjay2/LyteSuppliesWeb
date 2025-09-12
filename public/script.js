@@ -1,10 +1,36 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
-const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
-const CLIENT_ID = "1415538798460272723";
-const REDIRECT_URI = encodeURIComponent("https://coreapi.online/");
+document.addEventListener("DOMContentLoaded", () => {
+    const discordBtn = document.getElementById("discordBtn");
+    const username = getCookie("discordUsername");
+    if (username) {
+        updateDiscordButton(username);
+    }
 
-const SCOPE = "identify";
+    if (discordBtn) {
+        discordBtn.addEventListener("click", () => {
+            window.location.href = "/auth/discord";
+        });
+    }
+});
+
+function updateDiscordButton(username) {
+    const discordBtn = document.getElementById("discordBtn");
+    if (!discordBtn) return;
+    discordBtn.innerHTML = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152..."/>
+    </svg> Hello, ${username}`;
+}
+
+// Simple cookie getter
+function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
+
+const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
@@ -110,75 +136,6 @@ async function logVisitorDetails() {
     console.error('Error logging details:', error);
   }
 }
-
-const handleDiscordLogin = () => {
-    const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
-    window.location.href = oauthUrl;
-};
-
-// Fetch Discord user info from token
-const fetchDiscordUser = async (token) => {
-    try {
-        const res = await fetch("https://discord.com/api/users/@me", {
-            headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Invalid token");
-        return await res.json(); // returns { username, discriminator, id }
-    } catch (err) {
-        console.error("Failed to fetch Discord user:", err);
-        return null;
-    }
-};
-
-// Update button
-const updateDiscordButton = (username) => {
-    const discordBtn = document.getElementById("discordBtn");
-    if (!discordBtn) return;
-    discordBtn.textContent = username ? `Hello, ${username}` : "Connect Discord";
-};
-
-// Check login and store data
-const checkDiscordLogin = async () => {
-    const discordBtn = document.getElementById("discordBtn");
-    if (!discordBtn) return;
-
-    // 1️⃣ Check localStorage
-    const cachedUsername = localStorage.getItem("discordUsername");
-    const cachedID = localStorage.getItem("discordID");
-    if (cachedUsername && cachedID) {
-        updateDiscordButton(cachedUsername);
-        console.log("Cached Discord info:", cachedUsername, cachedID);
-        return;
-    }
-
-    // 2️⃣ Check URL hash for access_token
-    const hash = window.location.hash;
-    if (hash.includes("access_token")) {
-        const params = new URLSearchParams(hash.replace("#", ""));
-        const accessToken = params.get("access_token");
-
-        const user = await fetchDiscordUser(accessToken);
-        if (user) {
-            const fullUsername = `${user.username}#${user.discriminator}`;
-            // Save to localStorage
-            localStorage.setItem("discordUsername", fullUsername);
-            localStorage.setItem("discordID", user.id);
-
-            updateDiscordButton(fullUsername);
-            console.log("Fetched Discord info:", fullUsername, user.id);
-        } else {
-            updateDiscordButton(null);
-        }
-
-        // ✅ Remove hash from URL immediately
-        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
-        return;
-    }
-
-    // Default: not logged in
-    updateDiscordButton(null);
-};
-
 
 (async () => {
   try {
@@ -1776,9 +1733,4 @@ const App = () => {
 const root = ReactDOM.createRoot(document.getElementById('root'));
 logVisitorDetails();
 // Call on page load
-window.addEventListener("DOMContentLoaded", () => {
-    const discordBtn = document.getElementById("discordBtn");
-    if (discordBtn) discordBtn.addEventListener("click", handleDiscordLogin);
-    checkDiscordLogin();
-});
 root.render(<App />);
