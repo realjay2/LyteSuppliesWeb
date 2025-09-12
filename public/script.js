@@ -256,7 +256,7 @@ const Logo = ({ onScrollTo }) => (
   <img
     onClick={() => onScrollTo('home')}
     className="h-8 w-auto cursor-pointer"
-    src="https://media.discordapp.net/attachments/1379463876101537873/1415129658265178212/core.png?ex=68c215b2&is=68c0c432&hm=a910b8115a8d307e1cf62c9421799ef88e08a3b5a0ad858449795864e064057f&="
+    src="https://github.com/realjay2/LyteSuppliesWeb/blob/main/public/core.png?raw=true"
     alt="Logo"
   />
 );
