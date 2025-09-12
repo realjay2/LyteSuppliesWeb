@@ -506,6 +506,22 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+
+// Example usage
+const username = getCookie('discordUsername');
+const discordID = getCookie('discordID');
+
+if (username) {
+  console.log('Logged in as:', username, discordID);
+  // Update your UI here
+}
+
 // Fancy popup
 function showLoginPopup(username) {
   const popup = document.createElement("div");
