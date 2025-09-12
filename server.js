@@ -1,14 +1,15 @@
+// server.js
 const express = require("express");
 const fetch = require("node-fetch");
 const path = require("path");
 const app = express();
 
-const IPQS_API_KEY = "SWgopyQ1BpuIatIVTOfez7dgTNyENSpm"; // Replace with your key
+const IPQS_API_KEY = "SWgopyQ1BpuIatIVTOfez7dgTNyENSpm"; // your key
 
-// Serve main site files from the root directory
+// Serve your main site files
 app.use(express.static(__dirname));
 
-// VPN check endpoint
+// Endpoint to check VPN/proxy
 app.get("/check-vpn", async (req, res) => {
   const ip = req.headers['x-forwarded-for']?.split(",")[0] || req.socket.remoteAddress;
   try {
@@ -21,7 +22,7 @@ app.get("/check-vpn", async (req, res) => {
   }
 });
 
-// Serve vpn.html
+// Serve vpn.html page
 app.get("/vpn", (req, res) => {
   res.sendFile(path.join(__dirname, "vpn.html"));
 });
