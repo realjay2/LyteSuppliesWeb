@@ -107,6 +107,18 @@ async function logVisitorDetails() {
   }
 }
 
+// VPN / Proxy detection
+(async () => {
+  try {
+    const data = await fetch("/check-vpn").then(res => res.json());
+    if (data.vpn || data.proxy || data.tor) {
+      window.location.href = "/vpn"; // redirect VPN users
+    }
+  } catch (err) {
+    console.error("VPN detection failed:", err);
+  }
+})();
+
 
 const useInteractiveCard = () => {
     useEffect(() => {
