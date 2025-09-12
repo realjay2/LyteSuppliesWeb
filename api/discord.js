@@ -1,5 +1,3 @@
-import cookie from 'cookie';
-
 const CLIENT_ID = "1415538798460272723";
 const CLIENT_SECRET = "EgAnSyhqyi0FqDRhDCasFa5bldRnE7ce";
 const REDIRECT_URI = "https://coreapi.online";
