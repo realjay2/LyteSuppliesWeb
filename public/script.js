@@ -1,21 +1,5 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
-function updateDiscordButton(username) {
-    const discordBtn = document.getElementById("discordBtn");
-    if (!discordBtn) return;
-    discordBtn.innerHTML = `<svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152..."/>
-    </svg> Hello, ${username}`;
-}
-
-// Simple cookie getter
-function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(";").shift();
-}
-
-
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
 function getDeviceInfo() {
