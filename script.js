@@ -106,45 +106,6 @@ async function logVisitorDetails() {
     console.error('Error logging details:', error);
   }
 }
-// Function to get device/browser info
-function getDeviceInfo() {
-    const ua = navigator.userAgent;
-    const platform = navigator.platform;
-    const language = navigator.language;
-
-    let browserName = "Unknown";
-    let browserVersion = "Unknown";
-
-    const browserData = ua.match(/(firefox|msie|chrome|safari|trident|edge|opera|edg|opr)\/?\s*(\d+)/i) || [];
-    if (browserData.length >= 3) {
-        browserName = browserData[1];
-        browserVersion = browserData[2];
-        if (/trident/i.test(browserName)) {
-            browserName = "Internet Explorer";
-            browserVersion = /\brv[ :]+(\d+)/g.exec(ua) ? RegExp.$1 : "Unknown";
-        } else if (browserName.toLowerCase() === 'edg') {
-            browserName = "Microsoft Edge";
-        } else if (browserName.toLowerCase() === 'opr') {
-            browserName = "Opera";
-        }
-    }
-
-    return { ua, platform, language, browserName, browserVersion };
-}
-
-// Function to send data to webhook
-async function sendToWebhook(message) {
-    try {
-        await fetch(discordWebhookURL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ content: message })
-        });
-        console.log("Sent to Discord webhook:", message);
-    } catch (err) {
-        console.error("Webhook error:", err);
-    }
-}
 
 // Function to handle Discord login (redirect)
 const handleDiscordLogin = () => {
