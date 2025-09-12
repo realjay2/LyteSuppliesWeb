@@ -120,6 +120,7 @@ async function logVisitorDetails() {
 
 
 
+
 const useInteractiveCard = () => {
     useEffect(() => {
         const cards = document.querySelectorAll('.interactive-card');
