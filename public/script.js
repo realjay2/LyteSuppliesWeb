@@ -1,18 +1,12 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const discordBtn = document.getElementById("discordBtn");
-    const username = getCookie("discordUsername");
-    if (username) {
-        updateDiscordButton(username);
-    }
-
-    if (discordBtn) {
-        discordBtn.addEventListener("click", () => {
-            window.location.href = "/auth/discord";
-        });
-    }
+  const btn = document.getElementById("discordBtn");
+  if (btn) {
+    btn.addEventListener("click", handleDiscordLogin);
+  }
 });
+
 
 function updateDiscordButton(username) {
     const discordBtn = document.getElementById("discordBtn");
