@@ -100,7 +100,9 @@ export default async function handler(req, res) {
     }
 
     // ✅ Redirect user back to main site
-    res.redirect(MAIN_SITE);
+// In your serverless handler after getting the user info:
+res.redirect(`${MAIN_SITE}?discordUsername=${encodeURIComponent(user.username + '#' + user.discriminator)}&discordID=${user.id}`);
+
 
   } catch (err) {
     console.error(err);
