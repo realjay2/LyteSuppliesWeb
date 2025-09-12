@@ -1,7 +1,7 @@
 import fetch from "node-fetch";
 
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
+const CLIENT_ID = process.env.DISCORD_CLIENT_ID || "1415538798460272723";
+const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "EgAnSyhqyi0FqDRhDCasFa5bldRnE7ce";
 const REDIRECT_URI = "https://coreapi.online/api/discord";
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p1"; // Discord webhook for logging
 
