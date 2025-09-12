@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID || "1415538798460272723";
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "EgAnSyhqyi0FqDRhDCasFa5bldRnE7ce";
 const REDIRECT_URI = "https://coreapi.online/api/discord";
