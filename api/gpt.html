@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemini GPT</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #1c1c1c;
+    color: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+  .chat-container {
+    width: 100%;
+    max-width: 600px;
+    background: #2c2c2c;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+  }
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 1rem;
+  }
+  .message {
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    max-width: 80%;
+    line-height: 1.5;
+  }
+  .user-message {
+    background: #ffb74d;
+    color: #000;
+    align-self: flex-end;
+  }
+  .ai-message {
+    background: #3a3a3a;
+    color: #fff;
+    align-self: flex-start;
+  }
+  .input-container {
+    display: flex;
+    gap: 0.5rem;
+  }
+  input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    background: #1c1c1c;
+    color: #fff;
+  }
+  button {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    background: #ffb74d;
+    font-weight: 600;
+    cursor: pointer;
+    color: #000;
+    transition: transform 0.2s;
+  }
+  button:hover { transform: scale(1.05); }
+  .loading { font-style: italic; color: #ffb74d; }
+</style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="messages" id="messages"></div>
+  <div class="input-container">
+    <input type="text" id="prompt" placeholder="Ask Gemini AI..." />
+    <button id="sendBtn">Send</button>
+  </div>
+</div>
+
+<script>
+const messagesEl = document.getElementById("messages");
+const inputEl = document.getElementById("prompt");
+const sendBtn = document.getElementById("sendBtn");
+
+// ⚠️ Your API key will be visible to everyone
+const GEMINI_API_KEY = "AIzaSyDEHOL5SLJEzJyCk2Q_JYvf4Am9aZnEgI0"; 
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+
+function appendMessage(content, type) {
+  const msgEl = document.createElement("div");
+  msgEl.className = "message " + (type === "user" ? "user-message" : "ai-message");
+  msgEl.textContent = content;
+  messagesEl.appendChild(msgEl);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+sendBtn.addEventListener("click", async () => {
+  const prompt = inputEl.value.trim();
+  if (!prompt) return;
+
+  appendMessage(prompt, "user");
+  inputEl.value = "";
+
+  const loadingEl = document.createElement("div");
+  loadingEl.className = "message ai-message loading";
+  loadingEl.textContent = "Gemini AI is thinking...";
+  messagesEl.appendChild(loadingEl);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+
+  try {
+    const response = await fetch(GEMINI_API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: { text: prompt },
+        temperature: 0.7,
+        maxOutputTokens: 300
+      })
+    });
+
+    const data = await response.json();
+    loadingEl.remove();
+
+    const aiText = data.candidates?.[0]?.content?.[0]?.text || "No response from Gemini.";
+    appendMessage(aiText, "ai");
+
+  } catch (err) {
+    loadingEl.remove();
+    appendMessage("Error fetching response from Gemini.", "ai");
+    console.error(err);
+  }
+});
+</script>
+
+</body>
+</html>
