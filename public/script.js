@@ -592,7 +592,7 @@ const AIHelperModal = ({ onClose }) => {
             {(handleClose) => (
                 <div className="bg-theme-modal-card rounded-lg shadow-2xl w-full max-w-2xl h-[80vh] flex flex-col border border-theme">
                     <div className="p-4 border-b border-theme flex justify-between items-center flex-shrink-0">
-                        <h3 className="text-lg font-bold text-theme-primary">AI Script Helper</h3>
+                        <h3 className="text-lg font-bold text-theme-primary">AI Bot Helper</h3>
                         <button onClick={handleClose} className="text-theme-secondary hover:text-theme-primary text-2xl">×</button>
                     </div>
                     <div className="flex-1 p-4 space-y-4 overflow-y-auto custom-scrollbar">
@@ -1644,7 +1644,7 @@ const App = () => {
                                              <div className="z-10 w-12 h-12 rounded-full flex items-center justify-center font-bold text-2xl bg-klar/10 border-2 border-klar text-klar shadow-[0_0_15px_rgba(85,134,214,0.4)] backdrop-blur-sm">2</div>
                                         </div>
                                         <div className="ml-4 p-6 bg-theme-card border border-theme rounded-lg">
-                                            <h4 className="text-2xl font-semibold">Prepare Your Script</h4>
+                                            <h4 className="text-2xl font-semibold">Prepare Your Key</h4>
                                             <p className="text-theme-secondary mt-2">Paste the key you received from Step 1 into the box below. Then, click the copy button to get your final script.</p>
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
