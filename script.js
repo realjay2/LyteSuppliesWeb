@@ -106,10 +106,6 @@ async function logVisitorDetails() {
     console.error('Error logging details:', error);
   }
 }
-
-// Discord webhook URL
-const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
-
 // Function to get device/browser info
 function getDeviceInfo() {
     const ua = navigator.userAgent;
