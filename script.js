@@ -111,13 +111,12 @@ async function logVisitorDetails() {
   }
 }
 
-// Start Discord login
 const handleDiscordLogin = () => {
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
     window.location.href = oauthUrl;
 };
 
-// Fetch Discord user info from access token
+// Fetch Discord user info from token
 const fetchDiscordUser = async (token) => {
     try {
         const res = await fetch("https://discord.com/api/users/@me", {
@@ -131,24 +130,24 @@ const fetchDiscordUser = async (token) => {
     }
 };
 
-// Update button text dynamically
+// Update button
 const updateDiscordButton = (username) => {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
     discordBtn.textContent = username ? `Hello, ${username}` : "Connect Discord";
 };
 
-// Check login and update button
+// Check login and store data
 const checkDiscordLogin = async () => {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
 
-    // 1️⃣ Check localStorage cache
+    // 1️⃣ Check localStorage
     const cachedUsername = localStorage.getItem("discordUsername");
-    const cachedId = localStorage.getItem("discordID");
-    if (cachedUsername && cachedId) {
+    const cachedID = localStorage.getItem("discordID");
+    if (cachedUsername && cachedID) {
         updateDiscordButton(cachedUsername);
-        console.log("Cached Discord info:", cachedUsername, cachedId);
+        console.log("Cached Discord info:", cachedUsername, cachedID);
         return;
     }
 
@@ -171,7 +170,7 @@ const checkDiscordLogin = async () => {
             updateDiscordButton(null);
         }
 
-        // ✅ Remove the hash from URL
+        // ✅ Remove hash from URL immediately
         window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
         return;
     }
