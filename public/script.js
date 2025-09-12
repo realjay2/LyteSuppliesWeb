@@ -1751,30 +1751,6 @@ return (
     );
 };
 
-async function handleDiscordLogin() {
-  const popup = window.open('/api/discord', '_blank', 'width=500,height=700');
-
-  const interval = setInterval(async () => {
-    try {
-      // Check if popup is closed
-      if (popup.closed) clearInterval(interval);
-
-      // Try to fetch user info (CORS must allow this)
-      const res = await fetch('/api/discord');
-      const data = await res.json();
-
-      if (data.discordUsername) {
-        document.getElementById('discordBtn').innerText = `Hello, ${data.discordUsername}`;
-        clearInterval(interval);
-      }
-    } catch (err) {
-      // Waiting for user to authorize
-    }
-  }, 1000);
-}
-
-document.getElementById('discordBtn').addEventListener('click', handleDiscordLogin);
-
 const root = ReactDOM.createRoot(document.getElementById('root'));
 logVisitorDetails();
 // Call on page load
