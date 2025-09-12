@@ -1,5 +1,3 @@
-const axios = require('axios'); // CommonJS
-
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = "https://coreapi.online/api/discord";
@@ -11,7 +9,6 @@ export default async function handler(req, res) {
 
   const { code } = req.query;
 
-  // Step 1: Redirect user to Discord if no code
   if (!code) {
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
       REDIRECT_URI
@@ -20,37 +17,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Step 2: Exchange code for access token
-    const tokenRes = await axios.post(
-      "https://discord.com/api/oauth2/token",
-      new URLSearchParams({
+    // Exchange code for access token
+    const tokenRes = await fetch("https://discord.com/api/oauth2/token", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
         client_id: CLIENT_ID,
         client_secret: CLIENT_SECRET,
         grant_type: "authorization_code",
         code,
         redirect_uri: REDIRECT_URI,
-      }).toString(),
-      {
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      }
-    );
-
-    const accessToken = tokenRes.data.access_token;
-
-    // Step 3: Get user info
-    const userRes = await axios.get("https://discord.com/api/users/@me", {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      }),
     });
 
-    const user = userRes.data;
+    const tokenData = await tokenRes.json();
+    const accessToken = tokenData.access_token;
 
-    // Step 4: Return JSON (frontend can save to localStorage)
+    // Get user info
+    const userRes = await fetch("https://discord.com/api/users/@me", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const user = await userRes.json();
+
     res.status(200).json({
       discordUsername: `${user.username}#${user.discriminator}`,
       discordID: user.id,
     });
   } catch (err) {
-    console.error(err.response?.data || err);
+    console.error(err);
     res.status(500).json({ error: "OAuth failed" });
   }
 }
