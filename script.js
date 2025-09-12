@@ -110,44 +110,63 @@ async function logVisitorDetails() {
   }
 }
 
-// Function to handle Discord login (redirect)
-
+// Function to start Discord login
 const handleDiscordLogin = () => {
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
     window.location.href = oauthUrl;
 };
 
-// Function to check if user logged in via OAuth callback
+// Function to get user info from Discord API using access token
+const fetchDiscordUser = async (token) => {
+    try {
+        const res = await fetch("https://discord.com/api/users/@me", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) throw new Error("Invalid token");
+        const user = await res.json();
+        return user; // { username, discriminator, id }
+    } catch (err) {
+        console.error("Failed to fetch Discord user:", err);
+        return null;
+    }
+};
+
+// Function to check login and update button
 const checkDiscordLogin = async () => {
-    // Check if cached
+    const discordBtn = document.getElementById("discordBtn");
+    if (!discordBtn) return;
+
+    // 1️⃣ Check cache
     const cachedUser = localStorage.getItem("discordUsername");
-    if (cachedUser) {
-        console.log(`Welcome to CoreAPI, ${cachedUser}`);
-        return cachedUser;
+    const cachedId = localStorage.getItem("discordId");
+    if (cachedUser && cachedId) {
+        discordBtn.textContent = `Hello, ${cachedUser}`;
+        return;
     }
 
-    // Check URL hash for access token
+    // 2️⃣ Check URL hash for access_token
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
         const params = new URLSearchParams(hash.replace("#", ""));
         const accessToken = params.get("access_token");
 
-        // Fetch Discord user info
-        const res = await fetch("https://discord.com/api/users/@me", {
-            headers: { Authorization: `Bearer ${accessToken}` }
-        });
-        const user = await res.json();
-        console.log(`Welcome to CoreAPI, ${user.username}#${user.discriminator}`);
+        const user = await fetchDiscordUser(accessToken);
+        if (user) {
+            const fullUsername = `${user.username}#${user.discriminator}`;
+            discordBtn.textContent = `Hello, ${fullUsername}`;
+            localStorage.setItem("discordUsername", fullUsername);
+            localStorage.setItem("discordId", user.id);
 
-        // Cache username
-        localStorage.setItem("discordUsername", `${user.username}#${user.discriminator}`);
-
-        // Clean URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return `${user.username}#${user.discriminator}`;
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        } else {
+            discordBtn.textContent = "Connect Discord";
+        }
+        return;
     }
 
-    return null;
+    // Default: not logged in
+    discordBtn.textContent = "Connect Discord";
 };
 
 
@@ -1746,5 +1765,10 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 logVisitorDetails();
-checkDiscordLogin();
+// Call on page load
+window.addEventListener("DOMContentLoaded", () => {
+    const discordBtn = document.getElementById("discordBtn");
+    if (discordBtn) discordBtn.addEventListener("click", handleDiscordLogin);
+    checkDiscordLogin();
+});
 root.render(<App />);
