@@ -1474,7 +1474,7 @@ const App = () => {
                 <main>
                     <section id="home" className="min-h-screen flex flex-col items-center justify-center text-center p-8 pt-20">
                         <div className="relative z-10">
-                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-klar">Klar</span> Hub</h2>
+                            <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold">Welcome to <span className="text-klar">Core</span>API</h2>
                             <p className="text-lg md:text-xl text-theme-secondary mt-4 max-w-2xl mx-auto">The pinnacle of script performance and reliability for FF2.</p>
                             <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-6 text-theme-secondary">
                                 <div className="flex items-center gap-2">
