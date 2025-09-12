@@ -111,36 +111,44 @@ async function logVisitorDetails() {
 }
 
 // Function to start Discord login
+// Start Discord login
 const handleDiscordLogin = () => {
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
     window.location.href = oauthUrl;
 };
 
-// Function to get user info from Discord API using access token
+// Fetch Discord user info from access token
 const fetchDiscordUser = async (token) => {
     try {
         const res = await fetch("https://discord.com/api/users/@me", {
-            headers: { Authorization: `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Invalid token");
-        const user = await res.json();
-        return user; // { username, discriminator, id }
+        return await res.json(); // returns { username, discriminator, id }
     } catch (err) {
         console.error("Failed to fetch Discord user:", err);
         return null;
     }
 };
 
-// Function to check login and update button
+// Update button text dynamically
+const updateDiscordButton = (username) => {
+    const discordBtn = document.getElementById("discordBtn");
+    if (!discordBtn) return;
+    discordBtn.textContent = username ? `Hello, ${username}` : "Connect Discord";
+};
+
+// Check login and update button
 const checkDiscordLogin = async () => {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
 
     // 1️⃣ Check cache
-    const cachedUser = localStorage.getItem("discordUsername");
-    const cachedId = localStorage.getItem("discordId");
-    if (cachedUser && cachedId) {
-        discordBtn.textContent = `Hello, ${cachedUser}`;
+    const cachedUsername = localStorage.getItem("discordUsername");
+    const cachedId = localStorage.getItem("discordID");
+    if (cachedUsername && cachedId) {
+        updateDiscordButton(cachedUsername);
+        console.log("Cached Discord info:", cachedUsername, cachedId);
         return;
     }
 
@@ -153,20 +161,21 @@ const checkDiscordLogin = async () => {
         const user = await fetchDiscordUser(accessToken);
         if (user) {
             const fullUsername = `${user.username}#${user.discriminator}`;
-            discordBtn.textContent = `Hello, ${fullUsername}`;
             localStorage.setItem("discordUsername", fullUsername);
-            localStorage.setItem("discordId", user.id);
+            localStorage.setItem("discordID", user.id);
+            updateDiscordButton(fullUsername);
+            console.log("Fetched Discord info:", fullUsername, user.id);
 
-            // Clean URL
+            // Clean URL hash
             window.history.replaceState({}, document.title, window.location.pathname);
         } else {
-            discordBtn.textContent = "Connect Discord";
+            updateDiscordButton(null);
         }
         return;
     }
 
     // Default: not logged in
-    discordBtn.textContent = "Connect Discord";
+    updateDiscordButton(null);
 };
 
 
