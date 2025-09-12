@@ -143,7 +143,7 @@ const checkDiscordLogin = async () => {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
 
-    // 1️⃣ Check cache in localStorage
+    // 1️⃣ Check localStorage cache
     const cachedUsername = localStorage.getItem("discordUsername");
     const cachedId = localStorage.getItem("discordID");
     if (cachedUsername && cachedId) {
@@ -152,7 +152,7 @@ const checkDiscordLogin = async () => {
         return;
     }
 
-    // 2️⃣ Check URL hash for access_token (after redirect)
+    // 2️⃣ Check URL hash for access_token
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
         const params = new URLSearchParams(hash.replace("#", ""));
@@ -167,12 +167,12 @@ const checkDiscordLogin = async () => {
 
             updateDiscordButton(fullUsername);
             console.log("Fetched Discord info:", fullUsername, user.id);
-
-            // Clean URL hash
-            window.history.replaceState({}, document.title, window.location.pathname);
         } else {
             updateDiscordButton(null);
         }
+
+        // ✅ Remove the hash from URL
+        window.history.replaceState({}, document.title, window.location.origin + window.location.pathname);
         return;
     }
 
