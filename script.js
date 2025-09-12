@@ -1,6 +1,9 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
+const CLIENT_ID = "1415538798460272723";
+const REDIRECT_URI = encodeURIComponent(window.location.href); // current page
+const SCOPE = "identify";
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
@@ -114,24 +117,37 @@ const handleDiscordLogin = () => {
 
 // Function to check if user logged in via OAuth callback
 const checkDiscordLogin = async () => {
+    // Check if cached
     const cachedUser = localStorage.getItem("discordUsername");
     if (cachedUser) {
         console.log(`Welcome to CoreAPI, ${cachedUser}`);
-        sendToWebhook(`User Logged In: ${cachedUser} | Device Info: ${JSON.stringify(getDeviceInfo())}`);
         return cachedUser;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const usernameFromUrl = params.get("username");
-    if (usernameFromUrl) {
-        console.log(`Welcome to CoreAPI, ${usernameFromUrl}`);
-        localStorage.setItem("discordUsername", usernameFromUrl);
-        sendToWebhook(`User Logged In: ${usernameFromUrl} | Device Info: ${JSON.stringify(getDeviceInfo())}`);
+    // Check URL hash for access token
+    const hash = window.location.hash;
+    if (hash.includes("access_token")) {
+        const params = new URLSearchParams(hash.replace("#", ""));
+        const accessToken = params.get("access_token");
+
+        // Fetch Discord user info
+        const res = await fetch("https://discord.com/api/users/@me", {
+            headers: { Authorization: `Bearer ${accessToken}` }
+        });
+        const user = await res.json();
+        console.log(`Welcome to CoreAPI, ${user.username}#${user.discriminator}`);
+
+        // Cache username
+        localStorage.setItem("discordUsername", `${user.username}#${user.discriminator}`);
+
+        // Clean URL
         window.history.replaceState({}, document.title, window.location.pathname);
-        return usernameFromUrl;
+        return `${user.username}#${user.discriminator}`;
     }
 
     return null;
+};
+rn null;
 };
 
 
