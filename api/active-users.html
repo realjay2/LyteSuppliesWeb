@@ -1,93 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Admin Panel - Active Users</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: linear-gradient(135deg, #2e2e2e, #1c1c1c);
-      color: #f0f0f0;
-      min-height: 100vh;
-      padding: 40px 80px;
-    }
-    h1 {
-      color: #ff7a29;
-      margin-bottom: 24px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #333;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 10px 40px rgba(255, 122, 41, 0.6);
-    }
-    th, td {
-      padding: 12px 16px;
-      text-align: left;
-      border-bottom: 1px solid #ff7a29;
-      font-size: 1rem;
-    }
-    th {
-      background: #ff7a2944;
-    }
-    tr:last-child td {
-      border-bottom: none;
-    }
-  </style>
-</head>
-<body>
-  <h1>Active Users</h1>
-  <table id="activeUsersTable" aria-live="polite">
-    <thead>
-      <tr>
-        <th>User ID</th>
-        <th>Username</th>
-        <th>Last Activity</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="3">Loading active users...</td></tr>
-    </tbody>
-  </table>
+function createActiveUsersPanel(containerId = "activeUsersPanel", apiEndpoint = "/api/active-users") {
+  const container = document.getElementById(containerId);
+  if (!container) {
+    console.error(`Container with ID '${containerId}' not found.`);
+    return;
+  }
 
-  <script>
-    async function fetchActiveUsers() {
-      try {
-        const response = await fetch('/api/active-users'); // Replace with your real endpoint
-        if (!response.ok) throw new Error('Network response was not ok');
-        const users = await response.json();
-        populateActiveUsers(users);
-      } catch (error) {
-        const tbody = document.querySelector('#activeUsersTable tbody');
-        tbody.innerHTML = `<tr><td colspan="3">Failed to load active users.</td></tr>`;
-        console.error('Fetch active users failed:', error);
-      }
-    }
+  container.style.fontFamily = `"Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+  container.style.background = `linear-gradient(135deg, #2e2e2e, #1c1c1c)`;
+  container.style.color = "#f0f0f0";
+  container.style.minHeight = "100vh";
+  container.style.padding = "40px 80px";
 
-    function populateActiveUsers(users) {
-      const tbody = document.querySelector('#activeUsersTable tbody');
-      if(!users || users.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3">No active users found.</td></tr>';
+  const header = document.createElement("h1");
+  header.style.color = "#ff7a29";
+  header.style.marginBottom = "24px";
+  header.textContent = "Active Users";
+  container.appendChild(header);
+
+  const table = document.createElement("table");
+  table.style.width = "100%";
+  table.style.borderCollapse = "collapse";
+  table.style.backgroundColor = "#333";
+  table.style.borderRadius = "10px";
+  table.style.overflow = "hidden";
+  table.style.boxShadow = "0 10px 40px rgba(255, 122, 41, 0.6)";
+  table.setAttribute("aria-live", "polite");
+
+  const thead = document.createElement("thead");
+  thead.innerHTML = `
+    <tr>
+      <th style="padding: 12px 16px; text-align: left; border-bottom: 1px solid #ff7a29; font-size: 1rem; background: #ff7a2944;">User ID</th>
+      <th style="padding: 12px 16px; text-align: left; border-bottom: 1px solid #ff7a29; font-size: 1rem; background: #ff7a2944;">Username</th>
+      <th style="padding: 12px 16px; text-align: left; border-bottom: 1px solid #ff7a29; font-size: 1rem; background: #ff7a2944;">Last Activity</th>
+    </tr>
+  `;
+  table.appendChild(thead);
+
+  const tbody = document.createElement("tbody");
+  tbody.innerHTML = '<tr><td colspan="3" style="padding: 12px 16px;">Loading active users...</td></tr>';
+  table.appendChild(tbody);
+
+  container.appendChild(table);
+
+  async function fetchActiveUsers() {
+    try {
+      const response = await fetch(apiEndpoint);
+      if (!response.ok) throw new Error("Failed to fetch active users.");
+      const users = await response.json();
+      if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="padding: 12px 16px;">No active users found.</td></tr>';
         return;
       }
-      tbody.innerHTML = users.map(user => `
+      tbody.innerHTML = users.map(u => `
         <tr>
-          <td>${user.id}</td>
-          <td>${user.username}</td>
-          <td>${user.lastActivity}</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #ff7a29;">${u.id}</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #ff7a29;">${u.username}</td>
+          <td style="padding: 12px 16px; border-bottom: 1px solid #ff7a29;">${u.lastActivity}</td>
         </tr>
-      `).join('');
+      `).join("");
+    } catch (error) {
+      tbody.innerHTML = '<tr><td colspan="3" style="padding: 12px 16px;">Failed to load active users.</td></tr>';
+      console.error(error);
     }
+  }
 
-    // Initial fetch
-    fetchActiveUsers();
-
-    // Optionally refresh every 30 seconds
-    setInterval(fetchActiveUsers, 30000);
-  </script>
-</body>
-</html>
+  fetchActiveUsers();
+  setInterval(fetchActiveUsers, 30000);
+}
