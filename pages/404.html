@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 - Page Not Found</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .container {
+      background: #fff;
+      border-radius: 20px;
+      padding: 60px 40px;
+      text-align: center;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+      border: 1px solid #ddd;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .container h1 {
+      font-size: 8rem;
+      color: #FFA500; /* bright orange */
+      margin-bottom: 20px;
+    }
+
+    .container h2 {
+      font-size: 2rem;
+      margin-bottom: 15px;
+    }
+
+    .container p {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .container a {
+      display: inline-block;
+      padding: 12px 30px;
+      background: linear-gradient(90deg, #FFA500, #FFC04D);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 12px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 8px 15px rgba(255,165,0,0.4);
+    }
+
+    .container a:hover {
+      background: linear-gradient(90deg, #FFB300, #FF9900);
+      box-shadow: 0 12px 20px rgba(255,165,0,0.5);
+      transform: translateY(-3px);
+    }
+
+    /* Animated orange dots */
+    .dots {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 8px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      background: #FFA500;
+      border-radius: 50%;
+      animation: ping 1.2s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+    .dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes ping {
+      0%, 100% { transform: scale(1); opacity: 0.7; }
+      50% { transform: scale(1.5); opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>404</h1>
+    <h2>Page Not Found</h2>
+    <p>Oops! The page you are looking for doesn't exist or has been moved.</p>
+    <a href="/">Go Home</a>
+    <div class="dots">
+      <div class="dot"></div>
+      <div class="dot"></div>
+      <div class="dot"></div>
+    </div>
+  </div>
+</body>
+</html>
