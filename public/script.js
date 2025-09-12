@@ -1461,13 +1461,6 @@ const App = () => {
                                     <span>Premium Quality</span>
                                 </div>
                             </div>
-                            <div className="mt-8 flex flex-col items-center justify-center gap-4">
-                               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                                    <button onClick={() => handleScrollTo('pricing')} className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2">
-                                        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z"/></svg>
-                                        Purchase Now
-                                    </button>
-
                         {/* Side-by-side buttons */}
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                           <button
