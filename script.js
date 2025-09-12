@@ -147,8 +147,6 @@ const checkDiscordLogin = async () => {
 
     return null;
 };
-rn null;
-};
 
 
 (async () => {
