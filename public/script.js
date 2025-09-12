@@ -1504,7 +1504,7 @@ const App = () => {
                                 <DiscordCounter />
                                  <button onClick={handlePreviewClick} className="mt-2 py-2 px-6 rounded-lg font-semibold text-center transition bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text flex items-center gap-2">
                                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z" /><path fillRule="evenodd" d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" /></svg>
-                                    Preview Hub
+                                    Preview API
                                  </button>
                             </div>
                               </div>
@@ -1539,7 +1539,7 @@ const App = () => {
                             </div>
                         </section>
                         <section id="games" className="py-12 text-center fade-in-section">
-                             <h3 className="text-4xl font-bold">Supported Games</h3>
+                             <h3 className="text-4xl font-bold">Our Features</h3>
                              <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
                                   {supportedGames.map(game => (
                                        <div key={game.name} className="bg-theme-card p-8 rounded-lg border border-theme text-center interactive-card flex flex-col justify-between">
