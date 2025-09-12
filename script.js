@@ -111,7 +111,6 @@ async function logVisitorDetails() {
   }
 }
 
-// Function to start Discord login
 // Start Discord login
 const handleDiscordLogin = () => {
     const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
@@ -144,7 +143,7 @@ const checkDiscordLogin = async () => {
     const discordBtn = document.getElementById("discordBtn");
     if (!discordBtn) return;
 
-    // 1️⃣ Check cache
+    // 1️⃣ Check cache in localStorage
     const cachedUsername = localStorage.getItem("discordUsername");
     const cachedId = localStorage.getItem("discordID");
     if (cachedUsername && cachedId) {
@@ -153,7 +152,7 @@ const checkDiscordLogin = async () => {
         return;
     }
 
-    // 2️⃣ Check URL hash for access_token
+    // 2️⃣ Check URL hash for access_token (after redirect)
     const hash = window.location.hash;
     if (hash.includes("access_token")) {
         const params = new URLSearchParams(hash.replace("#", ""));
@@ -162,8 +161,10 @@ const checkDiscordLogin = async () => {
         const user = await fetchDiscordUser(accessToken);
         if (user) {
             const fullUsername = `${user.username}#${user.discriminator}`;
+            // Save to localStorage
             localStorage.setItem("discordUsername", fullUsername);
             localStorage.setItem("discordID", user.id);
+
             updateDiscordButton(fullUsername);
             console.log("Fetched Discord info:", fullUsername, user.id);
 
