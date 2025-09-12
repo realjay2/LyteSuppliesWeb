@@ -488,7 +488,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (discordBtn) {
         discordBtn.addEventListener("click", () => {
-            window.location.href = "/auth/discord"; // server-side route
+            window.location.href = "/api/discord"; // server-side route
         });
     }
 });
