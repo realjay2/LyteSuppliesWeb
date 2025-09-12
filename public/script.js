@@ -264,7 +264,7 @@ const Logo = ({ onScrollTo }) => (
 
 const DiscordCounter = () => {
     const [onlineCount, setOnlineCount] = useState(null);
-    const serverId = '1372408110601474148';
+    const serverId = '1358536829636448418';
 
     useEffect(() => {
         const fetchCount = () => {
