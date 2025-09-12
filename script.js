@@ -111,8 +111,10 @@ async function logVisitorDetails() {
 }
 
 // Function to handle Discord login (redirect)
+
 const handleDiscordLogin = () => {
-    window.location.href = "https://coreapi.online/login";
+    const oauthUrl = `https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=token&scope=${SCOPE}`;
+    window.location.href = oauthUrl;
 };
 
 // Function to check if user logged in via OAuth callback
