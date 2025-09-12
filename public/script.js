@@ -1503,57 +1503,63 @@ return (
               </div>
             </div>
 
-            {/* Side-by-side buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
-              <button
-                onClick={() => handleScrollTo('pricing')}
-                className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z" />
-                </svg>
-                Purchase Now
-              </button>
+{/* Side-by-side buttons */}
+<section>
+  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+    {/* Purchase Now */}
+    <button
+      onClick={() => handleScrollTo('pricing')}
+      className="py-3 px-8 rounded-lg font-semibold text-center transition bg-klar hover:bg-klar-light text-white shadow-lg shadow-klar flex items-center gap-2"
+    >
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25v-6h9M6.08 5.746l.473 2.365A1.125 1.125 0 015.454 9H2.25M9 11.25v3.375c0 .621.504 1.125 1.125 1.125h2.25c.621 0 1.125-.504 1.125-1.125V11.25m-3.375 0h3.375M7.5 14.25h3.375z" />
+      </svg>
+      Purchase Now
+    </button>
 
-              <button
-                id="discordBtn"
-                onClick={() => {
-                  // If already logged in, do nothing
-                  if (!localStorage.getItem("discordUsername")) {
-                    window.location.href = "/api/discord"; // server-side OAuth
-                  }
-                }}
-                className="py-3 px-8 rounded-lg font-semibold text-center transition bg-[#5865F2] hover:bg-[#4752C4] text-white shadow-lg shadow-[#5865F2] flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.0371 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1971.372.2914a.077.077 0 01-.0067.1276 12.2986 12.2986 0 01-1.873.8924.0766.0766 0 00-.0407.1062c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.331c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.095 2.156 2.418 0 1.334-.955 2.419-2.156 2.419zm7.974 0c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.095 2.156 2.418 0 1.334-.946 2.419-2.156 2.419z" />
-                </svg>
-                {localStorage.getItem("discordUsername")
-                  ? `Hello, ${localStorage.getItem("discordUsername")}`
-                  : "Connect Discord"}
-</button>
+    {/* Discord Connect / Hello Button */}
+    <button
+      id="discordBtn"
+      onClick={() => {
+        if (!localStorage.getItem("discordUsername")) {
+          window.location.href = "/api/discord"; // server-side OAuth
+        }
+      }}
+      className="py-3 px-8 rounded-lg font-semibold text-center transition bg-[#5865F2] hover:bg-[#4752C4] text-white shadow-lg shadow-[#5865F2] flex items-center gap-2"
+    >
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.0371 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1971.372.2914a.077.077 0 01-.0067.1276 12.2986 12.2986 0 01-1.873.8924.0766.0766 0 00-.0407.1062c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.331c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.095 2.156 2.418 0 1.334-.955 2.419-2.156 2.419zm7.974 0c-1.182 0-2.156-1.085-2.156-2.419 0-1.333.955-2.418 2.156-2.418 1.21 0 2.175 1.095 2.156 2.418 0 1.334-.946 2.419-2.156 2.419z" />
+      </svg>
+      {localStorage.getItem("discordUsername")
+        ? `Hello, ${localStorage.getItem("discordUsername")}`
+        : "Connect Discord"}
+    </button>
+  </div>
 
-                  </div>
-                  <DiscordCounter />
-                  <button
-                    onClick={handlePreviewClick}
-                    className="mt-2 py-2 px-6 rounded-lg font-semibold text-center transition bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text flex items-center gap-2"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path
-                        fillRule="evenodd"
-                        d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    Preview Hub
-                  </button>
-                    </section>
+  {/* Discord Counter */}
+  <DiscordCounter />
+
+  {/* Preview Hub Button */}
+  <button
+    onClick={handlePreviewClick}
+    className="mt-2 py-2 px-6 rounded-lg font-semibold text-center transition bg-theme-button-secondary hover:bg-theme-button-secondary-hover text-theme-button-secondary-text flex items-center gap-2"
+  >
+    <svg
+      className="w-5 h-5"
+      fill="currentColor"
+      viewBox="0 0 20 20"
+    >
+      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+      <path
+        fillRule="evenodd"
+        d="M.458 10C3.732 4.943 9.522 3 10 3s6.268 1.943 9.542 7c-3.274 5.057-9.064 7-9.542 7S3.732 15.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+        clipRule="evenodd"
+      />
+    </svg>
+    Preview Hub
+  </button>
+</section>
+
                     <div className="w-full max-w-6xl mx-auto px-4 space-y-24">
                     <div className="w-full max-w-6xl mx-auto px-4 space-y-24">
                          <section id="stats" className="py-12 fade-in-section">
