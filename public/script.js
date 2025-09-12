@@ -1649,7 +1649,7 @@ const App = () => {
                                             <div className="mt-4 bg-theme-dark p-4 rounded-lg relative">
                                                 <pre className="text-gray-300 overflow-x-auto custom-scrollbar">
                                                     <code>
-                                                        {'COREAPI-"'}<span className="text-klar">{freeKey || "insert key"}</span>
+                                                        {'COREAPI-'}<span className="text-klar">{freeKey || "insert key"}</span>
                                                     </code>
                                                 </pre>
                                                 <div className="mt-4 flex flex-col sm:flex-row gap-2">
