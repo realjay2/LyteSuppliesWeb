@@ -489,40 +489,31 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.setItem("discordUsername", discordUsername);
     localStorage.setItem("discordID", discordID);
 
-    // Clean URL
+    // Clean URL (remove query params)
     const cleanUrl = window.location.origin + window.location.pathname;
     window.history.replaceState({}, document.title, cleanUrl);
 
-    // Show popup
+    // Show fancy popup
     showLoginPopup(discordUsername);
   }
 
-  // Handle Discord button clicks (if you have one)
+  // Handle Discord button clicks
   const discordBtn = document.getElementById("discordBtn");
   if (discordBtn) {
     discordBtn.addEventListener("click", () => {
+      // Redirect to server OAuth endpoint
       window.location.href = "/api/discord";
     });
+
+    // Update button text if already logged in
+    const storedUsername = localStorage.getItem("discordUsername");
+    if (storedUsername) {
+      discordBtn.innerText = `Hello, ${storedUsername}`;
+    }
   }
 });
 
-function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
-  return null;
-}
-
-// Example usage
-const username = getCookie('discordUsername');
-const discordID = getCookie('discordID');
-
-if (username) {
-  console.log('Logged in as:', username, discordID);
-  // Update your UI here
-}
-
-// Fancy popup
+// Fancy popup function
 function showLoginPopup(username) {
   const popup = document.createElement("div");
   popup.innerText = `Hello, ${username}! You are now logged in.`;
@@ -543,6 +534,7 @@ function showLoginPopup(username) {
     setTimeout(() => popup.remove(), 500);
   }, 5000);
 }
+
 
 
 const AIHelperModal = ({ onClose }) => {
