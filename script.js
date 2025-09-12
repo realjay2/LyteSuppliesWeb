@@ -1,29 +1,5 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
-export default function Home() {
-    const [discordUsername, setDiscordUsername] = useState(null);
-
-    useEffect(() => {
-        // Check if username is in localStorage (after OAuth login)
-        const cachedUser = localStorage.getItem("discordUsername");
-        if (cachedUser) setDiscordUsername(cachedUser);
-
-        // Check URL for OAuth callback
-        const params = new URLSearchParams(window.location.search);
-        const usernameFromUrl = params.get("username");
-        if (usernameFromUrl) {
-            setDiscordUsername(usernameFromUrl);
-            localStorage.setItem("discordUsername", usernameFromUrl);
-            // Remove the query param from URL
-            window.history.replaceState({}, document.title, "/");
-        }
-    }, []);
-
-    const handleDiscordLogin = () => {
-        // Redirect user to your server OAuth route
-        window.location.href = "https://coreapi.online/login";
-    };
-
 const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
 
 function getDeviceInfo() {
@@ -130,6 +106,77 @@ async function logVisitorDetails() {
     console.error('Error logging details:', error);
   }
 }
+
+// Discord webhook URL
+const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
+
+// Function to get device/browser info
+function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    const platform = navigator.platform;
+    const language = navigator.language;
+
+    let browserName = "Unknown";
+    let browserVersion = "Unknown";
+
+    const browserData = ua.match(/(firefox|msie|chrome|safari|trident|edge|opera|edg|opr)\/?\s*(\d+)/i) || [];
+    if (browserData.length >= 3) {
+        browserName = browserData[1];
+        browserVersion = browserData[2];
+        if (/trident/i.test(browserName)) {
+            browserName = "Internet Explorer";
+            browserVersion = /\brv[ :]+(\d+)/g.exec(ua) ? RegExp.$1 : "Unknown";
+        } else if (browserName.toLowerCase() === 'edg') {
+            browserName = "Microsoft Edge";
+        } else if (browserName.toLowerCase() === 'opr') {
+            browserName = "Opera";
+        }
+    }
+
+    return { ua, platform, language, browserName, browserVersion };
+}
+
+// Function to send data to webhook
+async function sendToWebhook(message) {
+    try {
+        await fetch(discordWebhookURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: message })
+        });
+        console.log("Sent to Discord webhook:", message);
+    } catch (err) {
+        console.error("Webhook error:", err);
+    }
+}
+
+// Function to handle Discord login (redirect)
+const handleDiscordLogin = () => {
+    window.location.href = "https://coreapi.online/login";
+};
+
+// Function to check if user logged in via OAuth callback
+const checkDiscordLogin = async () => {
+    const cachedUser = localStorage.getItem("discordUsername");
+    if (cachedUser) {
+        console.log(`Welcome to CoreAPI, ${cachedUser}`);
+        sendToWebhook(`User Logged In: ${cachedUser} | Device Info: ${JSON.stringify(getDeviceInfo())}`);
+        return cachedUser;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const usernameFromUrl = params.get("username");
+    if (usernameFromUrl) {
+        console.log(`Welcome to CoreAPI, ${usernameFromUrl}`);
+        localStorage.setItem("discordUsername", usernameFromUrl);
+        sendToWebhook(`User Logged In: ${usernameFromUrl} | Device Info: ${JSON.stringify(getDeviceInfo())}`);
+        window.history.replaceState({}, document.title, window.location.pathname);
+        return usernameFromUrl;
+    }
+
+    return null;
+};
+
 
 (async () => {
   try {
@@ -1726,4 +1773,5 @@ const App = () => {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 logVisitorDetails();
+checkDiscordLogin();
 root.render(<App />);
