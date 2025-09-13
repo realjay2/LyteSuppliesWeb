@@ -1,6 +1,6 @@
 const { useState, useEffect, useRef, useCallback } = React;
 
-const discordWebhookURL = `https://discord.com/api/webhooks/1415852727145336832/RrVh5LhYuqcAsUtnZkHIkcPOrJmKrmdQePFrOpuQh_AvSdLNNN1oND7xPv3v4z_64p12`;
+const discordWebhookURL = `https://discord.com/api/webhooks/1416215101773713458/UYthKETebhZR__DORlofj4Swdse_TTwHKS16KI6CwhblrMzMGQSQdOpGMeQiE5MPNLeC`;
 
 function getDeviceInfo() {
   const ua = navigator.userAgent;
