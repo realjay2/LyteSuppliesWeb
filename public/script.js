@@ -1127,7 +1127,7 @@ const ComparePlansModal = ({ onClose, allTiers }) => {
 };
 
 const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeSection, isMobileMenuOpen, onGameClick, theme, setTheme }) => {
-    const discordLink = "https://discord.gg/8NHvPQUrhd";
+    const discordLink = "https://discord.gg/uYwXyataDC";
     const navItems = [
         { id: 'features', label: 'Features' },
         { id: 'games', label: 'Supported Commands' },
@@ -1174,7 +1174,7 @@ const Header = ({ headerRef, onScrollTo, onToggleMobileMenu, onTosClick, activeS
 
 const MobileMenu = ({ isOpen, onScrollTo, onTosClick, onClose }) => {
     if (!isOpen) return null;
-    const discordLink = "https://discord.gg/8NHvPQUrhd";
+    const discordLink = "https://discord.gg/uYwXyataDC";
     const navItems = [
         { id: 'features', label: 'Features' },
         { id: 'games', label: 'Supported Commands' },
